@@ -1,0 +1,148 @@
+[
+	{
+		"name": "comicextra.me",
+		"lang": "en",
+		"type": "hq",
+		"priority": 2,
+		"color": "ffffcf40",
+		"search": {
+			"request": {
+				"url": "https://comicextra.me/search?keyword={query}",
+				"type": "get"
+			},
+			"rows": "find_all('div', ('class','cartoon-box'))",	
+			"title": "item('a', order=2)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "'\\n'.join(x.strip() for x in item('div', order=4).split('\\n'))",
+			"link": "item('a', attribute='href', order=2)"
+		},
+		"popular": {
+			"request": {
+				"url": "https://comicextra.me/popular-comic",
+				"type": "get"
+			},
+			"rows": "find_all('div', ('class','cartoon-box'))",	
+			"title": "item('a', order=2)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "item('div', order=4)",
+			"link": "item('a', attribute='href', order=2)"
+		},
+		"chapters": {
+			"request": {
+				"type": "get"
+			},
+			"rows": "find_once('table', ('class', 'table')).find_all('tr')",
+			"title": "item('a', order=1)",
+			"plot": "'\\n'.join(x.strip() for x in item('td', order=2).split('\\n'))",
+			"link": "item('a', attribute='href', order=1) + '/full'",
+			"reverse": "true"
+		},
+		"pages": {
+			"request": {
+				"type": "get"
+			},
+			"type": "tag_attrib_from_rows",
+			"rows": "find_once('div', ('class', 'chapter-container')).find_all('img')",
+			"title": "alt",
+			"link": "src",
+			"reverse": "true"
+		}
+	},
+
+
+
+	{
+		"name": "mangaonline.biz",
+		"lang": "pt-BR",
+		"type": "manga",
+		"priority": 0,
+		"color": "ff8b9dc3",
+		"search": {
+			"request": {
+				"url": "https://mangaonline.biz/search/{query}",
+				"type": "get"
+			},
+			"rows": "find_all('div', ('id','archive-content'))",	
+			"title": "item('a', order=2)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "item('div', order=2)",
+			"link": "item('a', attribute='href', order=2)"
+		},
+		"chapters": {
+			"request": {
+				"type": "get"
+			},
+			"rows": "find_once('ul', ('class', 'episodios')).find_all('li')",
+			"title": "item('a', order=1)",
+			"plot": "item('a', order=1).split('/')[-1]",
+			"link": "item('a', attribute='href', order=1)",
+			"reverse": "true"
+		},
+		"pages": {
+			"request": {
+				"type": "get"
+			},
+			"type": "tag_attrib_from_rows",
+			"rows": "find_once('div', ('class', 'content')).find_all('img', ('loading', 'lazy'))",
+			"title": "src",
+			"mutate_title": "'{title}'.split('/')[-1]",
+			"link": "src",
+			"reverse": "false"
+		}
+	},
+
+
+
+	{
+		"name": "mangananquim.com",
+		"lang": "pt-BR",
+		"type": "manga",
+		"priority": 0,
+		"color": "ffbe9b7b",
+		"search": {
+			"request": {
+				"url": "https://mangananquim.com/?s={query}&post_type=wp-manga",
+				"type": "get"
+			},
+			"rows": "find_once('div', ('class','c-tabs-item')).find_all('div', ('class','c-tabs-item__content'))",
+			"title": "item('a', attribute='title', order=1)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "",
+			"link": "item('a', attribute='href', order=1) + 'ajax/chapters/'"
+		},
+		"popular": {
+			"request": {
+				"url": "https://mangananquim.com/?m_orderby=trending",
+				"type": "get"
+			},
+			"rows": "find_once('div', ('role','tabpanel')).find_all('div', ('class','page-item-detail'))",
+			"title": "item('a', attribute='title', order=1)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "item('a', select=('class','btn-link'), order=1)",
+			"link": "item('a', attribute='href', order=1) + 'ajax/chapters/'"
+		},
+		"chapters": {
+			"request": {
+				"type": "post"
+			},
+			"rows": "find_all('li', ('class','wp-manga-chapter'))",
+			"title": "item('a', order=1)",
+			"plot": "'adicionado em ' + item('i', order=1)",
+			"link": "item('a', attribute='href', order=1) + '?style=list'",
+			"reverse": "true"
+		},
+		"pages": {
+			"request": {
+				"type": "get"
+			},
+			"type": "tag_attrib_from_rows",
+			"rows": "find_once('div', ('class', 'reading-content')).find_all('img', ('class', 'wp-manga-chapter-img'))",
+			"title": "id",
+			"link": "src",
+			"reverse": "false"
+		}
+	}
+
+
+
+]

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.image.k-viewer" name="K-Viewer" version="0.1" provider-name="gbchr">
+	
+	<requires>
+		<import addon="script.module.kodi-six" />
+		<import addon="script.module.requests" />
+		<import addon="script.module.future" />
+	</requires>
+
+	<extension point="xbmc.python.pluginsource" library="addon.py">
+		<provides>image</provides>
+	</extension>
+
+	<extension point="xbmc.addon.metadata">
+		<platform>all</platform>
+		<summary lang="pt">HQs e Mangás</summary>
+		<summary lang="en">Comics and Mangas</summary>
+		
+		<description lang="pt"></description>
+		<description lang="en"></description>
+		
+		<license>GNU General Public License, v2</license>
+		<source>https://github.com/addon-rajada/plugin.image.k-viewer</source>
+		<assets>
+			<icon>resources/media/icon.png</icon>
+			<fanart>resources/media/fanart.png</fanart>
+
+			<screenshot>resources/media/screenshot1.png</screenshot>
+			<screenshot>resources/media/screenshot2.png</screenshot>
+			<screenshot>resources/media/screenshot3.png</screenshot>
+			<screenshot>resources/media/screenshot4.png</screenshot>
+			<screenshot>resources/media/screenshot5.png</screenshot>
+		</assets>
+	</extension>
+
+	<reuselanguageinvoker>true</reuselanguageinvoker>
+
+</addon>
