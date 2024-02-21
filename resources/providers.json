@@ -1,6 +1,6 @@
 [
 	{
-		"name": "comicextra.me",
+		"name": "comicextra",
 		"lang": "en",
 		"type": "hq",
 		"priority": 2,
@@ -43,10 +43,9 @@
 			"request": {
 				"type": "get"
 			},
-			"type": "tag_attrib_from_rows",
 			"rows": "find_once('div', ('class', 'chapter-container')).find_all('img')",
-			"title": "alt",
-			"link": "src",
+			"title": "item.attr['alt']",
+			"link": "item.attr['src']",
 			"reverse": "true"
 		}
 	},
@@ -54,7 +53,7 @@
 
 
 	{
-		"name": "mangaonline.biz",
+		"name": "mangaonline",
 		"lang": "pt-BR",
 		"type": "manga",
 		"priority": 0,
@@ -84,11 +83,10 @@
 			"request": {
 				"type": "get"
 			},
-			"type": "tag_attrib_from_rows",
 			"rows": "find_once('div', ('class', 'content')).find_all('img', ('loading', 'lazy'))",
-			"title": "src",
+			"title": "item.attr['src']",
 			"mutate_title": "'{title}'.split('/')[-1]",
-			"link": "src",
+			"link": "item.attr['src']",
 			"reverse": "false"
 		}
 	},
@@ -96,7 +94,7 @@
 
 
 	{
-		"name": "mangananquim.com",
+		"name": "mangananquim",
 		"lang": "pt-BR",
 		"type": "manga",
 		"priority": 0,
@@ -138,14 +136,56 @@
 			"request": {
 				"type": "get"
 			},
-			"type": "tag_attrib_from_rows",
 			"rows": "find_once('div', ('class', 'reading-content')).find_all('img', ('class', 'wp-manga-chapter-img'))",
-			"title": "id",
-			"link": "src",
+			"title": "item.attr['id']",
+			"link": "item.attr['src']",
+			"reverse": "false"
+		}
+	},
+
+
+
+	{
+		"name": "galaxiadosquadrinhos",
+		"lang": "pt-BR",
+		"type": "hq",
+		"priority": 0,
+		"color": "ff008080",
+
+		"search": {
+			"request": {
+				"url": "https://www.galaxiadosquadrinhos.com.br/search?q={query}",
+				"type": "get"
+			},
+			"rows": "find_all('article', ('class','post-outer-container'))",	
+			"title": "item('a', order=2)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "",
+			"link": "item('a', attribute='href', order=2)"
+		},
+		"chapters": {
+			"request": {
+				"type": "get"
+			},
+			"rows": "find_once('div', ('class', 'post-body')).find_all('a', ('target','_blank'))",
+			"title": "item('img', attribute='title', order=1)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "",
+			"link": "item.attr['href']",
+			"reverse": "false"
+		},
+		"pages": {
+			"request": {
+				"type": "get"
+			},
+			"rows": "find_once('div', ('class', 'post')).find_all('img')",
+			"title": "item.attr['src']",
+			"mutate_title": "'{title}'.split('/')[-1]",
+			"link": "item.attr['src']",
+			"mutate_link": "'/'.join(['https:'] + '{link}'.replace('http:/', '').replace('https:/', '').split('/'))",
 			"reverse": "false"
 		}
 	}
-
 
 
 ]

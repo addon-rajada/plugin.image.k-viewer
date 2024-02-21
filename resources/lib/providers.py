@@ -9,9 +9,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import sys
 if sys.version_info[0] == 2:
-	from urllib import quote
+	from urllib import quote, unquote
 else:
-	from urllib.parse import quote
+	from urllib.parse import quote, unquote
 
 def _load_file(path):
     if not os.path.exists(path):
@@ -39,12 +39,12 @@ def _has_pagination(request_obj):
 		elif request_obj['pagination'] == 'true':
 			return True
 
-def do_request(type, url):
+def do_request(type, url, timeout = 15):
 	try:
 		if type == 'get':
-			resp = requests.get(url, timeout=10)
+			resp = requests.get(url, timeout=timeout)
 		elif type == 'post':
-			resp = requests.post(url, timeout=10)
+			resp = requests.post(url, timeout=timeout)
 		return resp
 
 	except requests.exceptions.Timeout:
@@ -79,7 +79,7 @@ def do_search(provider, query, page):
 		result.append({
 			'priority': provider['priority'],
 			'provider': provider['name'],
-			'title': title,
+			'title': unquote(title),
 			'image': eval(provider['search']['image']),
 			'link': utils.base64_encode_url(eval(provider['search']['link'])),
 			'plot': try_eval(item, provider['search'], 'plot')
@@ -107,7 +107,7 @@ def do_list_popular(provider, page):
 		result.append({
 			'priority': provider['priority'],
 			'provider': provider['name'],
-			'title': title,
+			'title': unquote(title),
 			'image': try_eval(item, provider['popular'], 'image'),
 			'link': utils.base64_encode_url(eval(provider['popular']['link'])),
 			'plot': try_eval(item, provider['popular'], 'plot')
@@ -130,12 +130,12 @@ def do_list_chapters(provider, url):
 				title = try_eval(item, p['chapters'], 'title')
 				#if 'mutate_title' in p['chapters']:
 				#	title = eval(p['chapters']['mutate_title'].replace('{title}', title))
-				title = try_eval(item, p['chapters'], 'mutate_title', title, "'{value}'.replace('{title}', default_return)")
+				title = try_eval(item, p['chapters'], 'mutate_title', title, "\"{value}\".replace('{title}', default_return)")
 
 				result.append({
 					'priority': p['priority'],
 					'provider': p['name'],
-					'title': title,
+					'title': unquote(title),
 					'link': utils.base64_encode_url(try_eval(item, p['chapters'], 'link')),
 					'plot': try_eval(item, p['chapters'], 'plot')
 				})
@@ -157,22 +157,25 @@ def do_list_pages(provider, url):
 			b = eval('dom.' + p['pages']['rows'])
 			for item in b:
 				try:
-					if p['pages']['type'] == 'tag_attrib_from_rows':
-						attrs = ET.fromstring(str(item)).attrib
+					#if p['pages']['type'] == 'tag_attrib_from_rows':
+						#attrs = ET.fromstring(str(item)).attrib
 						#print(item, attrs)
 
-						# process title
-						title = attrs[p['pages']['title']]
-						if 'mutate_title' in p['pages']:
-							title = eval(p['pages']['mutate_title'].replace('{title}', title))
+					# process title
+					#title = attrs[p['pages']['title']]
+					title = try_eval(item, p['pages'], 'title')
+					if 'mutate_title' in p['pages']:
+						title = eval(p['pages']['mutate_title'].replace('{title}', title))
 
-						link = attrs[p['pages']['link']]
+					#link = attrs[p['pages']['link']]
+					link = try_eval(item, p['pages'], 'link')
+					link = try_eval(item, p['pages'], 'mutate_link', link, "\"{value}\".replace('{link}', default_return)")
 
-						partial_result.append({
-							'title': title,
-							'link_b64': utils.base64_encode_url(link.strip()),
-							'link': link.strip()
-						})
+					partial_result.append({
+						'title': unquote(title),
+						'link_b64': utils.base64_encode_url(link.strip()),
+						'link': link.strip()
+					})
 				except ET.ParseError:
 					print('parser error', str(item))
 					continue
