@@ -13,7 +13,7 @@ if sys.version_info[0] == 2:
 else:
 	from urllib.parse import quote
 
-def load_file(path):
+def _load_file(path):
     if not os.path.exists(path):
         print('erro')
         return
@@ -28,7 +28,16 @@ def load_file(path):
         import traceback
         print("Failed importing providers from %s: %s" % (path, repr(e)))
 
-all_providers = load_file(os.path.join(os.path.dirname(__file__), '..', 'providers.json'))
+all_providers = _load_file(os.path.join(os.path.dirname(__file__), '..', 'providers.json'))
+
+def _has_pagination(request_obj):
+	if 'pagination' not in request_obj:
+		return False
+	elif 'pagination' in request_obj:
+		if request_obj['pagination'] == 'false':
+			return False
+		elif request_obj['pagination'] == 'true':
+			return True
 
 def do_request(type, url):
 	try:
@@ -53,8 +62,13 @@ def try_eval(item, object, key, default_return = 'nothing to eval', pre_function
 		return default_return
 
 
-def do_search(provider, query): # page = ''
-	c = do_request(provider['search']['request']['type'], provider['search']['request']['url'].replace('{query}', quote(query)))
+def do_search(provider, query, page):
+	url = provider['search']['request']['url']
+	url = url.replace('{query}', quote(query))
+	url = url.replace('{page}', str(page))
+	if int(page) > 1 and not _has_pagination(provider['search']['request']):
+		return []
+	c = do_request(provider['search']['request']['type'], url)
 	if c == None: return []
 	dom = Html().feed(c.text)
 	a = eval('dom.' + provider['search']['rows'])
@@ -73,26 +87,32 @@ def do_search(provider, query): # page = ''
 		#print(str(item), result)
 	return result
 
-def do_list_popular(type):
+
+
+def do_list_popular(provider, page):
 	result = []
-	for p in all_providers:
-		if p['type'] == type and 'popular' in p:
-			c = do_request(p['popular']['request']['type'],p['popular']['request']['url'])
-			if c == None: continue
-			dom = Html().feed(c.text)
-			a = eval('dom.' + p['popular']['rows'])
-			for item in a: # must be item
-				title = try_eval(item, p['popular'], 'title')
-				title = '[COLOR %s][%s][%s][/COLOR] %s' % (p['color'], p['name'], p['lang'], title)
-				result.append({
-					'priority': p['priority'],
-					'provider': p['name'],
-					'title': title,
-					'image': try_eval(item, p['popular'], 'image'),
-					'link': utils.base64_encode_url(eval(p['popular']['link'])),
-					'plot': try_eval(item, p['popular'], 'plot')
-				})
-				#print(str(item), result)
+	url = provider['popular']['request']['url'].replace('{page}', str(page))
+	if int(page) > 1 and not _has_pagination(provider['popular']['request']):
+		return []
+	c = do_request(provider['popular']['request']['type'], url)
+	if c == None: return []
+	dom = Html().feed(c.text)
+	a = eval('dom.' + provider['popular']['rows'])
+	for item in a: # must be item
+		title = try_eval(item, provider['popular'], 'title')
+		title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'],
+													provider['name'],
+													provider['lang'],
+													title)
+		result.append({
+			'priority': provider['priority'],
+			'provider': provider['name'],
+			'title': title,
+			'image': try_eval(item, provider['popular'], 'image'),
+			'link': utils.base64_encode_url(eval(provider['popular']['link'])),
+			'plot': try_eval(item, provider['popular'], 'plot')
+		})
+		#print(str(item), result)
 	return result
 
 def do_list_chapters(provider, url):
@@ -150,6 +170,7 @@ def do_list_pages(provider, url):
 
 						partial_result.append({
 							'title': title,
+							'link_b64': utils.base64_encode_url(link.strip()),
 							'link': link.strip()
 						})
 				except ET.ParseError:
@@ -161,8 +182,22 @@ def do_list_pages(provider, url):
 	return result
 
 
+def popular(type, page):
+	results = []
 
-def search(query):
+	providers = [p for p in all_providers if p['type'] == type and 'popular' in p]
+	num_providers = len(providers)
+	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
+
+	with ThreadPoolExecutor(max_workers = workers) as executor:
+		futures = [executor.submit(do_list_popular, provider = x, page = page) for x in providers]
+		for f in as_completed(futures):
+			pool_result = f.result()
+			results.extend(pool_result)
+
+	return sorted(results, key = lambda x: x['priority'])
+
+def search(query, page):
 	results = []
 	
 	#for p in all_providers:
@@ -172,7 +207,7 @@ def search(query):
 	num_providers = len(all_providers)
 	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
 	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(do_search, provider = x, query = query) for x in all_providers]
+		futures = [executor.submit(do_search, provider = x, query = query, page = page) for x in all_providers]
 		for f in as_completed(futures):
 			pool_result = f.result()
 			results.extend(pool_result)

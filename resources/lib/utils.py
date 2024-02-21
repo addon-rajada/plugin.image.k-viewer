@@ -118,10 +118,12 @@ def elementum_url(type, title, year = '', id = ''):
 	return url
 
 def play(url):
+	print('play', url)
 	# play url
 	xbmcplugin.setResolvedUrl(plugin.handle, True, xbmcgui.ListItem(path=url))
 	#xbmc.executebuiltin("PlayMedia(%s)" % url)
 	#xbmc.executebuiltin('RunPlugin(%s)' % url)
+	#xbmc.executebuiltin('ShowPicture(%s)' % (url))
 	#xbmc.Player().play(url)
 
 def createFolder(function, label, arguments_list, image = icon_img, plot = '', thumb = icon_img):
@@ -131,61 +133,53 @@ def createFolder(function, label, arguments_list, image = icon_img, plot = '', t
 		'icon': img(thumb), 'thumb': img(thumb),
 		'poster': img(image), 'banner': img(image)
 	})
-	li.setInfo(type="image", infoLabels = {
-		"plot": bold(plot)
-	})
+	#li.setInfo(type="pictures", infoLabels = {
+	#	"plot": bold(plot)
+	#})
 	li.setProperty("fanart_image", img(fanart_img))
 	addDirectoryItem(plugin.handle, plugin.url_for(function, *arguments_list), li, True)
 
 def createWelcomeItem(message, plot, entrypoint_function):
 	# create first item of addon
 	welcomeItem = ListItem(bold(message))
-	welcomeItem.setInfo(type="image", infoLabels = {
+	welcomeItem.setInfo(type="pictures", infoLabels = {
 		"plot": bold(plot)
 	})
 	welcomeItem.setArt({'icon': img(icon_img)})
 	welcomeItem.setProperty("fanart_image", img(fanart_img))
 	addDirectoryItem(plugin.handle, plugin.url_for(entrypoint_function), welcomeItem, True)
 
-def createItem(url, label, **kwargs):
+def createItem(url, label, image, **kwargs):
 	# create playable item
-	li = ListItem(bold(label))
-	try:
-		#li.setInfo(type="image", infoLabels = {
-		#	"title": label,
-		#	#"plot": kwargs['plot'],
-		#	#"mediatype": kwargs['mediatype']
-		#})
-		# check and fix for original elementum context menu
-		#if kwargs['mediatype'] == 'tvshow':
-		#	li.setInfo(type="video", infoLabels = {
-		#		"tvshowtitle": label,
-		#		"season": 1,
-		#		"mediatype": "season"
-		#	})
-		li.setArt({
-			'icon': kwargs['image'], 'thumb': kwargs['image'],
-			'poster': kwargs['image'], 'banner': kwargs['image']
-		})
-		#li.setProperty("fanart_image", kwargs['fanart'])
-		#li.setProperty('IsPlayable', 'true')
-		#li.setProperty('tmdb_id', str(kwargs['id']))
-		#li.setProperty("year", str(kwargs['current_year']))
-		#li.setProperty("show_dialog_busy", "false")
-
-		CM_items = []
-		# context menu for similar content
-		#similar_link = plugin.base_url + '/similar/%s/%s/1' % (kwargs['id'], kwargs['mediatype'])
-		#similar_item = ('Conteúdo similar', 'Container.Update(%s)' % (similar_link))
-		#CM_items.append(similar_item)
-		# context menu for original title search
-		#title_item = ('Buscar com título original', 'RunPlugin(%s)' % (kwargs['real_title_search']))
-		#CM_items.append(title_item)
-		# add context menu to ListItem
-		#li.addContextMenuItems(CM_items)
-
-	except Exception as e:
-		log(e)
+	li = ListItem(label)
+	li.setProperty('IsPlayable', 'true')
+	#li.setContentLookup(False)
+	li.setInfo(type='pictures', infoLabels={
+		'title': label,
+		'picturepath': url
+	})
+	#infotag = li.getPictureInfoTag()
+	
+	#li.setInfo(type="image", infoLabels = {
+	#	"title": label,
+	#	#"plot": kwargs['plot'],
+	#	#"mediatype": kwargs['mediatype']
+	#})
+	li.setArt({
+		'thumb': image,
+	})
+	#li.setProperty("fanart_image", kwargs['fanart'])
+	
+	#CM_items = []
+	# context menu for similar content
+	#similar_link = plugin.base_url + '/similar/%s/%s/1' % (kwargs['id'], kwargs['mediatype'])
+	#similar_item = ('Conteúdo similar', 'Container.Update(%s)' % (similar_link))
+	#CM_items.append(similar_item)
+	# context menu for original title search
+	#title_item = ('Buscar com título original', 'RunPlugin(%s)' % (kwargs['real_title_search']))
+	#CM_items.append(title_item)
+	# add context menu to ListItem
+	#li.addContextMenuItems(CM_items)
 	addDirectoryItem(plugin.handle, url, li)
 
 def endDirectory():

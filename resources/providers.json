@@ -7,8 +7,9 @@
 		"color": "ffffcf40",
 		"search": {
 			"request": {
-				"url": "https://comicextra.me/search?keyword={query}",
-				"type": "get"
+				"url": "https://comicextra.me/search?keyword={query}&page={page}",
+				"type": "get",
+				"pagination": "true"
 			},
 			"rows": "find_all('div', ('class','cartoon-box'))",	
 			"title": "item('a', order=2)",
@@ -18,8 +19,9 @@
 		},
 		"popular": {
 			"request": {
-				"url": "https://comicextra.me/popular-comic",
-				"type": "get"
+				"url": "https://comicextra.me/popular-comic/{page}",
+				"type": "get",
+				"pagination": "true"
 			},
 			"rows": "find_all('div', ('class','cartoon-box'))",	
 			"title": "item('a', order=2)",
@@ -112,8 +114,9 @@
 		},
 		"popular": {
 			"request": {
-				"url": "https://mangananquim.com/?m_orderby=trending",
-				"type": "get"
+				"url": "https://mangananquim.com/page/{page}/?m_orderby=trending",
+				"type": "get",
+				"pagination": "true"
 			},
 			"rows": "find_once('div', ('role','tabpanel')).find_all('div', ('class','page-item-detail'))",
 			"title": "item('a', attribute='title', order=1)",
