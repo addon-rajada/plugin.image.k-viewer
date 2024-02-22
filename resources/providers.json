@@ -150,18 +150,38 @@
 		"lang": "pt-BR",
 		"type": "hq",
 		"priority": 0,
-		"color": "ff008080",
+		"color": "ff800080",
 
 		"search": {
 			"request": {
-				"url": "https://www.galaxiadosquadrinhos.com.br/search?q={query}",
-				"type": "get"
+				"url": "https://www.galaxiadosquadrinhos.com.br/feeds/posts/default?alt=json&max-results=200&q={query}&start-index={page}",
+				"type": "get",
+				"pagination": "true",
+				"page_multiplier": "int(page)*200 - 199"
 			},
-			"rows": "find_all('article', ('class','post-outer-container'))",	
-			"title": "item('a', order=2)",
-			"image": "item('img', attribute='src', order=1)",
+			"type": "json",
+			"exclude_title_with_words": "#|Ofertas - 17/01/2014|Marvel Comics|Bonecos POP Funko",
+			"rows": "['feed']['entry']",
+			"title": "['title']['$t']",
+			"image": "['media$thumbnail']['url']",
 			"plot": "",
-			"link": "item('a', attribute='href', order=2)"
+			"link": "['link']",
+			"mutate_link": "list(filter(lambda x: True if x['type'] == 'text/html' and x['rel']=='alternate' else False, {link}))[0]['href']"
+		},
+		"popular": {
+			"request": {
+				"url": "https://www.galaxiadosquadrinhos.com.br/feeds/posts/default?alt=json&max-results=5000",
+				"type": "get",
+				"pagination": "false"
+			},
+			"type": "json",
+			"exclude_title_with_words": "#|Ofertas - 17/01/2014|Marvel Comics|Bonecos POP Funko",
+			"rows": "['feed']['entry']",
+			"title": "['title']['$t']",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "item('a', select=('class','btn-link'), order=1)",
+			"link": "['link']",
+			"mutate_link": "list(filter(lambda x: True if x['type'] == 'text/html' and x['rel']=='alternate' else False, {link}))[0]['href']"
 		},
 		"chapters": {
 			"request": {

@@ -46,9 +46,9 @@ msgid "Previous page"
 msgstr ""
 
 msgctxt "#32008"
-msgid "[COLOR green]- Comics -[/COLOR]"
+msgid "[COLOR gold]- Comics -[/COLOR]"
 msgstr ""
 
 msgctxt "#32009"
-msgid "[COLOR green]- Mangas -[/COLOR]"
+msgid "[COLOR gold]- Mangas -[/COLOR]"
 msgstr ""

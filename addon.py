@@ -17,13 +17,13 @@ def index():
 	# search
 	utils.createFolder(input_query, utils.localStr(32000), [])
 	# comics
-	utils.createFolder(index, utils.localStr(32008), [])
+	utils.createFolder(index, utils.localStr(32008), []) # separator
 	utils.createFolder(popular, utils.localStr(32001), ['hq', 1])
 	utils.createFolder(recommended_comics, utils.localStr(32003), [])
 	utils.createFolder(search, utils.localStr(32005), ['dc',1])
 	utils.createFolder(search, utils.localStr(32004), ['marvel',1])
 	# mangas
-	utils.createFolder(index, utils.localStr(32009), [])
+	utils.createFolder(index, utils.localStr(32009), []) # separator
 	utils.createFolder(popular, utils.localStr(32002), ['manga', 1])
 	utils.createFolder(recommended_mangas, utils.localStr(32003), [])
 	utils.endDirectory()
@@ -41,11 +41,11 @@ def recommended_comics():
 
 @plugin.route('/recommended_mangas')
 def recommended_mangas():
+	utils.createFolder(search, "Akira", ['akira',1])
 	utils.createFolder(search, "One Piece", ['one piece',1])
 	utils.createFolder(search, "Naruto", ['naruto',1])
 	utils.createFolder(search, "Dragon Ball", ['dragon ball',1])
 	utils.createFolder(search, "Death Note", ['death note',1])
-	utils.createFolder(search, "akira", ['akira',1])
 	utils.endDirectory()
 
 @plugin.route('/input_query')

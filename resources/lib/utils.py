@@ -126,25 +126,25 @@ def play(url):
 	#xbmc.executebuiltin('ShowPicture(%s)' % (url))
 	#xbmc.Player().play(url)
 
-def createFolder(function, label, arguments_list, image = icon_img, plot = '', thumb = icon_img):
+def createFolder(function, label, arguments_list, image = icon_img, plot = 'aa', thumb = icon_img):
 	# create folder linked to some function and given arguments
 	li = ListItem(bold(label))
 	li.setArt({
 		'icon': img(thumb), 'thumb': img(thumb),
 		'poster': img(image), 'banner': img(image)
 	})
-	#li.setInfo(type="pictures", infoLabels = {
-	#	"plot": bold(plot)
-	#})
+	li.setInfo(type="pictures", infoLabels = {
+		"PictureCaption": bold(plot)
+	})
 	li.setProperty("fanart_image", img(fanart_img))
 	addDirectoryItem(plugin.handle, plugin.url_for(function, *arguments_list), li, True)
 
 def createWelcomeItem(message, plot, entrypoint_function):
 	# create first item of addon
 	welcomeItem = ListItem(bold(message))
-	welcomeItem.setInfo(type="pictures", infoLabels = {
-		"plot": bold(plot)
-	})
+	#welcomeItem.setInfo(type="pictures", infoLabels = {
+	#	"plot": bold(plot)
+	#})
 	welcomeItem.setArt({'icon': img(icon_img)})
 	welcomeItem.setProperty("fanart_image", img(fanart_img))
 	addDirectoryItem(plugin.handle, plugin.url_for(entrypoint_function), welcomeItem, True)
@@ -156,13 +156,13 @@ def createItem(url, label, image, **kwargs):
 	#li.setContentLookup(False)
 	li.setInfo(type='pictures', infoLabels={
 		'title': label,
-		'picturepath': url
+		#'mediatype': 'image',
+		'picturepath': url,
 	})
 	#infotag = li.getPictureInfoTag()
 	
 	#li.setInfo(type="image", infoLabels = {
 	#	"title": label,
-	#	#"plot": kwargs['plot'],
 	#	#"mediatype": kwargs['mediatype']
 	#})
 	li.setArt({

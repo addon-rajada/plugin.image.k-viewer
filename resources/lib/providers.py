@@ -39,6 +39,12 @@ def _has_pagination(request_obj):
 		elif request_obj['pagination'] == 'true':
 			return True
 
+def parser_type(parser_obj):
+	if 'type' in parser_obj:
+		return parser_obj['type']
+	else:
+		return 'html'
+
 def do_request(type, url, timeout = 15):
 	try:
 		if type == 'get':
@@ -61,30 +67,72 @@ def try_eval(item, object, key, default_return = 'nothing to eval', pre_function
 	else:
 		return default_return
 
+def process_request(provider, page, query = None):
+	pass
 
 def do_search(provider, query, page):
+	result = []
 	url = provider['search']['request']['url']
 	url = url.replace('{query}', quote(query))
-	url = url.replace('{page}', str(page))
+	
 	if int(page) > 1 and not _has_pagination(provider['search']['request']):
 		return []
+	if 'page_multiplier' in provider['search']['request']:
+		page = eval(provider['search']['request']['page_multiplier'])
+	url = url.replace('{page}', str(page))
+
 	c = do_request(provider['search']['request']['type'], url)
 	if c == None: return []
-	dom = Html().feed(c.text)
-	a = eval('dom.' + provider['search']['rows'])
-	result = []
-	for item in a: # must be item
-		title = eval(provider['search']['title'])
-		title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'], provider['name'], provider['lang'], title)
-		result.append({
-			'priority': provider['priority'],
-			'provider': provider['name'],
-			'title': unquote(title),
-			'image': eval(provider['search']['image']),
-			'link': utils.base64_encode_url(eval(provider['search']['link'])),
-			'plot': try_eval(item, provider['search'], 'plot')
-		})
-		#print(str(item), result)
+
+	if parser_type(provider['search']) == 'json':
+		rows = eval("%s%s" % ('c.json()', provider['search']['rows']))
+		for item in rows:
+			try: title = eval("%s%s" % ('item', provider['search']['title']))
+			except: title = 'No title'
+
+			try: image = eval("%s%s" % ('item', provider['search']['image']))
+			except: image = ''
+
+			if 'exclude_title_with_words' in provider['search']:
+				if any(w in title for w in provider['search']['exclude_title_with_words'].split('|')):
+					continue
+
+			title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'],
+														provider['name'],
+														provider['lang'],
+														title)
+
+			link = eval("%s%s" % ('item', provider['search']['link']))
+
+			if 'mutate_link' in provider['search']:
+				link = eval(provider['search']['mutate_link'].replace('{link}',repr(link)))
+
+			result.append({
+				'priority': provider['priority'],
+				'provider': provider['name'],
+				'title': unquote(title),
+				'image': image,
+				'link': utils.base64_encode_url(link),
+				'plot': ''
+			})
+
+	elif parser_type(provider['search']) == 'html':
+		dom = Html().feed(c.text)
+		a = eval('dom.' + provider['search']['rows'])
+	
+		for item in a: # must be item
+			title = eval(provider['search']['title'])
+			title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'], provider['name'], provider['lang'], title)
+			result.append({
+				'priority': provider['priority'],
+				'provider': provider['name'],
+				'title': unquote(title),
+				'image': eval(provider['search']['image']),
+				'link': utils.base64_encode_url(eval(provider['search']['link'])),
+				'plot': try_eval(item, provider['search'], 'plot')
+			})
+			#print(str(item), result)
+
 	return result
 
 
@@ -96,23 +144,59 @@ def do_list_popular(provider, page):
 		return []
 	c = do_request(provider['popular']['request']['type'], url)
 	if c == None: return []
-	dom = Html().feed(c.text)
-	a = eval('dom.' + provider['popular']['rows'])
-	for item in a: # must be item
-		title = try_eval(item, provider['popular'], 'title')
-		title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'],
-													provider['name'],
-													provider['lang'],
-													title)
-		result.append({
-			'priority': provider['priority'],
-			'provider': provider['name'],
-			'title': unquote(title),
-			'image': try_eval(item, provider['popular'], 'image'),
-			'link': utils.base64_encode_url(eval(provider['popular']['link'])),
-			'plot': try_eval(item, provider['popular'], 'plot')
-		})
-		#print(str(item), result)
+
+	if parser_type(provider['popular']) == 'json':
+		rows = eval("%s%s" % ('c.json()', provider['popular']['rows']))
+		for item in rows:
+			title = eval("%s%s" % ('item', provider['popular']['title']))
+
+			if 'exclude_title_with_words' in provider['popular']:
+				if any(w in title for w in provider['popular']['exclude_title_with_words'].split('|')):
+					continue
+					
+
+			title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'],
+														provider['name'],
+														provider['lang'],
+														title)
+
+			try: image = eval("%s%s" % ('item', provider['search']['image']))
+			except: image = ''
+
+			link = eval("%s%s" % ('item', provider['popular']['link']))
+
+			if 'mutate_link' in provider['popular']:
+				link = eval(provider['popular']['mutate_link'].replace('{link}',repr(link)))
+
+			result.append({
+				'priority': provider['priority'],
+				'provider': provider['name'],
+				'title': unquote(title),
+				'image': image,
+				'link': utils.base64_encode_url(link),
+				'plot': ''
+			})
+
+
+	elif parser_type(provider['popular']) == 'html':
+		dom = Html().feed(c.text)
+		a = eval('dom.' + provider['popular']['rows'])
+		for item in a: # must be item
+			title = try_eval(item, provider['popular'], 'title')
+			title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'],
+														provider['name'],
+														provider['lang'],
+														title)
+			result.append({
+				'priority': provider['priority'],
+				'provider': provider['name'],
+				'title': unquote(title),
+				'image': try_eval(item, provider['popular'], 'image'),
+				'link': utils.base64_encode_url(eval(provider['popular']['link'])),
+				'plot': try_eval(item, provider['popular'], 'plot')
+			})
+			#print(str(item), result)
+
 	return result
 
 def do_list_chapters(provider, url):
