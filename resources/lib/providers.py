@@ -30,7 +30,7 @@ def _load_file(path):
 
 all_providers = _load_file(os.path.join(os.path.dirname(__file__), '..', 'providers.json'))
 
-def _has_pagination(request_obj):
+def has_pagination(request_obj):
 	if 'pagination' not in request_obj:
 		return False
 	elif 'pagination' in request_obj:
@@ -45,7 +45,7 @@ def parser_type(parser_obj):
 	else:
 		return 'html'
 
-def do_request(type, url, timeout = 15):
+def do_request(type, url, timeout = 20):
 	try:
 		if type == 'get':
 			resp = requests.get(url, timeout=timeout)
@@ -67,46 +67,49 @@ def try_eval(item, object, key, default_return = 'nothing to eval', pre_function
 	else:
 		return default_return
 
-def process_request(provider, page, query = None):
-	pass
-
-def do_search(provider, query, page):
+def process_request(provider, page, req_obj, query = ''):
 	result = []
-	url = provider['search']['request']['url']
+
+	# process url
+	url = provider[req_obj]['request']['url']
 	url = url.replace('{query}', quote(query))
-	
-	if int(page) > 1 and not _has_pagination(provider['search']['request']):
-		return []
-	if 'page_multiplier' in provider['search']['request']:
-		page = eval(provider['search']['request']['page_multiplier'])
+
+	# process page
+	if int(page) > 1 and not has_pagination(provider[req_obj]['request']):
+		return result
+	if 'page_multiplier' in provider[req_obj]['request']:
+		page = eval(provider[req_obj]['request']['page_multiplier'])
 	url = url.replace('{page}', str(page))
 
-	c = do_request(provider['search']['request']['type'], url)
-	if c == None: return []
+	# request
+	resp = do_request(provider[req_obj]['request']['type'], url)
+	if resp == None: return result
 
-	if parser_type(provider['search']) == 'json':
-		rows = eval("%s%s" % ('c.json()', provider['search']['rows']))
+	# json parser
+	if parser_type(provider[req_obj]) == 'json':
+		try: rows = eval("%s%s" % ('resp.json()', provider[req_obj]['rows']))
+		except: rows = []
+
 		for item in rows:
-			try: title = eval("%s%s" % ('item', provider['search']['title']))
-			except: title = 'No title'
-
-			try: image = eval("%s%s" % ('item', provider['search']['image']))
+			# process image
+			try: image = eval("%s%s" % ('item', provider[req_obj]['image']))
 			except: image = ''
 
-			if 'exclude_title_with_words' in provider['search']:
-				if any(w in title for w in provider['search']['exclude_title_with_words'].split('|')):
+			# process title
+			try: title = eval("%s%s" % ('item', provider[req_obj]['title']))
+			except: title = ''
+			if 'exclude_title_with_words' in provider[req_obj]:
+				if any(w in title for w in provider[req_obj]['exclude_title_with_words'].split('|')):
 					continue
+			title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
 
-			title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'],
-														provider['name'],
-														provider['lang'],
-														title)
+			# process link
+			try: link = eval("%s%s" % ('item', provider[req_obj]['link']))
+			except: link = ''
+			if 'mutate_link' in provider[req_obj]:
+				link = eval(provider[req_obj]['mutate_link'].replace('{link}',repr(link)))
 
-			link = eval("%s%s" % ('item', provider['search']['link']))
-
-			if 'mutate_link' in provider['search']:
-				link = eval(provider['search']['mutate_link'].replace('{link}',repr(link)))
-
+			# new result
 			result.append({
 				'priority': provider['priority'],
 				'provider': provider['name'],
@@ -116,88 +119,46 @@ def do_search(provider, query, page):
 				'plot': ''
 			})
 
-	elif parser_type(provider['search']) == 'html':
-		dom = Html().feed(c.text)
-		a = eval('dom.' + provider['search']['rows'])
-	
-		for item in a: # must be item
-			title = eval(provider['search']['title'])
-			title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'], provider['name'], provider['lang'], title)
+	# html parser
+	elif parser_type(provider[req_obj]) == 'html':
+		dom = Html().feed(resp.text)
+		try: rows = eval('dom.' + provider[req_obj]['rows'])
+		except: rows = []
+		
+		for item in rows:
+			# process image
+			try: image = eval(provider[req_obj]['image'])
+			except: image = ''
+
+			# process title
+			try: title = eval(provider[req_obj]['title'])
+			except: title = ''
+			title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
+
+			# process link
+			try: link = eval(provider[req_obj]['link'])
+			except: link = ''
+			
+			# new result
 			result.append({
 				'priority': provider['priority'],
 				'provider': provider['name'],
 				'title': unquote(title),
-				'image': eval(provider['search']['image']),
-				'link': utils.base64_encode_url(eval(provider['search']['link'])),
-				'plot': try_eval(item, provider['search'], 'plot')
+				'image': image,
+				'link': utils.base64_encode_url(link),
+				'plot': '' #try_eval(item, provider['search'], 'plot')
 			})
-			#print(str(item), result)
 
 	return result
 
+
+def do_search(provider, query, page):
+	return process_request(provider, page, 'search', query)
 
 
 def do_list_popular(provider, page):
-	result = []
-	url = provider['popular']['request']['url'].replace('{page}', str(page))
-	if int(page) > 1 and not _has_pagination(provider['popular']['request']):
-		return []
-	c = do_request(provider['popular']['request']['type'], url)
-	if c == None: return []
-
-	if parser_type(provider['popular']) == 'json':
-		rows = eval("%s%s" % ('c.json()', provider['popular']['rows']))
-		for item in rows:
-			title = eval("%s%s" % ('item', provider['popular']['title']))
-
-			if 'exclude_title_with_words' in provider['popular']:
-				if any(w in title for w in provider['popular']['exclude_title_with_words'].split('|')):
-					continue
-					
-
-			title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'],
-														provider['name'],
-														provider['lang'],
-														title)
-
-			try: image = eval("%s%s" % ('item', provider['search']['image']))
-			except: image = ''
-
-			link = eval("%s%s" % ('item', provider['popular']['link']))
-
-			if 'mutate_link' in provider['popular']:
-				link = eval(provider['popular']['mutate_link'].replace('{link}',repr(link)))
-
-			result.append({
-				'priority': provider['priority'],
-				'provider': provider['name'],
-				'title': unquote(title),
-				'image': image,
-				'link': utils.base64_encode_url(link),
-				'plot': ''
-			})
-
-
-	elif parser_type(provider['popular']) == 'html':
-		dom = Html().feed(c.text)
-		a = eval('dom.' + provider['popular']['rows'])
-		for item in a: # must be item
-			title = try_eval(item, provider['popular'], 'title')
-			title = '[COLOR %s][%s][%s][/COLOR] %s' % (provider['color'],
-														provider['name'],
-														provider['lang'],
-														title)
-			result.append({
-				'priority': provider['priority'],
-				'provider': provider['name'],
-				'title': unquote(title),
-				'image': try_eval(item, provider['popular'], 'image'),
-				'link': utils.base64_encode_url(eval(provider['popular']['link'])),
-				'plot': try_eval(item, provider['popular'], 'plot')
-			})
-			#print(str(item), result)
-
-	return result
+	return process_request(provider, page, 'popular')
+	
 
 def do_list_chapters(provider, url):
 	result = []

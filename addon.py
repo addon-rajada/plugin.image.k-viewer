@@ -66,7 +66,8 @@ def show_image(url):
 
 @plugin.route('/search/<query>/<page>')
 def search(query, page):
-	for result in providers.search(query, page):
+	results = providers.search(query, page)
+	for result in results:
 		utils.createFolder(list_chapters,
 							result['title'],
 							[result['provider'], result['link']],
@@ -74,12 +75,14 @@ def search(query, page):
 							plot = result['plot'])
 	if int(page) > 1:
 		utils.createFolder(search, utils.localStr(32007), [query, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
-	utils.createFolder(search, utils.localStr(32006), [query, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
+	if len(results) > 0:
+		utils.createFolder(search, utils.localStr(32006), [query, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
 	utils.endDirectory()
 
 @plugin.route('/popular/<type>/<page>')
 def popular(type, page):
-	for result in providers.popular(type, page):
+	results = providers.popular(type, page)
+	for result in results:
 		utils.createFolder(list_chapters,
 							result['title'],
 							[result['provider'], result['link']],
@@ -87,7 +90,8 @@ def popular(type, page):
 							plot = result['plot'])
 	if int(page) > 1:
 		utils.createFolder(popular, utils.localStr(32007), [type, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
-	utils.createFolder(popular, utils.localStr(32006), [type, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
+	if len(results) > 0:
+		utils.createFolder(popular, utils.localStr(32006), [type, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
 	utils.endDirectory()
 
 
