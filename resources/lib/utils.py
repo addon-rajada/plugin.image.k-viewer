@@ -133,9 +133,9 @@ def createFolder(function, label, arguments_list, image = icon_img, plot = 'aa',
 		'icon': img(thumb), 'thumb': img(thumb),
 		'poster': img(image), 'banner': img(image)
 	})
-	li.setInfo(type="pictures", infoLabels = {
-		"PictureCaption": bold(plot)
-	})
+	#li.setInfo(type="pictures", infoLabels = {
+	#	"PictureCaption": bold(plot)
+	#})
 	li.setProperty("fanart_image", img(fanart_img))
 	addDirectoryItem(plugin.handle, plugin.url_for(function, *arguments_list), li, True)
 

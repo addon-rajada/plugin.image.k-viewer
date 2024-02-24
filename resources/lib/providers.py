@@ -1,5 +1,6 @@
 import os
 import json
+import re
 import requests
 from resources.lib.parser.ehp import *
 from resources.lib import utils
@@ -21,14 +22,19 @@ def _load_file(path):
     try:
         with open(path, encoding="utf-8") as file:
             providers = json.load(file)
-        for provider in providers:
-            print(provider)
+        #for provider in providers: print(provider)
         return providers
     except Exception as e:
         import traceback
         print("Failed importing providers from %s: %s" % (path, repr(e)))
 
 all_providers = _load_file(os.path.join(os.path.dirname(__file__), '..', 'providers.json'))
+
+def provider_by_name(name):
+	for p in all_providers:
+		if p['name'] == name:
+			return p
+	return None
 
 def has_pagination(request_obj):
 	if 'pagination' not in request_obj:
@@ -45,7 +51,7 @@ def parser_type(parser_obj):
 	else:
 		return 'html'
 
-def do_request(type, url, timeout = 20):
+def do_request(type, url, timeout = 5):
 	try:
 		if type == 'get':
 			resp = requests.get(url, timeout=timeout)
@@ -124,7 +130,7 @@ def process_request(provider, page, req_obj, query = ''):
 		dom = Html().feed(resp.text)
 		try: rows = eval('dom.' + provider[req_obj]['rows'])
 		except: rows = []
-		
+
 		for item in rows:
 			# process image
 			try: image = eval(provider[req_obj]['image'])
@@ -160,39 +166,77 @@ def do_list_popular(provider, page):
 	return process_request(provider, page, 'popular')
 	
 
-def do_list_chapters(provider, url):
+def do_list_chapters(provider, url, page):
 	result = []
 	url = utils.base64_decode_url(url)
-	print('url --- ',url)
-	for p in all_providers:
-		if p['name'] == provider:
-			cc = do_request(p['chapters']['request']['type'], url)
-			if cc == None: continue
-			dom = Html().feed(cc.text)
-			b = eval('dom.' + p['chapters']['rows'])
-			for item in b:
+	#print('url --- ',url)
+	p = provider_by_name(provider)
+	# process page
+	if 'page_multiplier' in p['chapters']['request']:
+		page = eval(provider['chapters']['request']['page_multiplier'])
+	url = url.replace('{page}', str(page))
+	# request
+	resp = do_request(p['chapters']['request']['type'], url)
+	if resp == None: return result
+	# process rows
+	dom = Html().feed(resp.text)
+	rows = eval('dom.' + p['chapters']['rows'])
+	for item in rows:
+		# process title
+		title = try_eval(item, p['chapters'], 'title')
+		#if 'mutate_title' in p['chapters']:
+		#	title = eval(p['chapters']['mutate_title'].replace('{title}', title))
+		title = try_eval(item, p['chapters'], 'mutate_title', title, "\"{value}\".replace('{title}', default_return)")
+		# process link
+		link = eval(p['chapters']['link'])
+		if not link.startswith('http'): continue
+		# new result
+		result.append({
+			'priority': p['priority'],
+			'provider': p['name'],
+			'title': unquote(title),
+			'link': utils.base64_encode_url(link),
+			'plot': '' #try_eval(item, p['chapters'], 'plot')
+		})
+	if 'reverse' in p['chapters'] and p['chapters']['reverse'] == 'true':
+		result.reverse()
 
-				title = try_eval(item, p['chapters'], 'title')
-				#if 'mutate_title' in p['chapters']:
-				#	title = eval(p['chapters']['mutate_title'].replace('{title}', title))
-				title = try_eval(item, p['chapters'], 'mutate_title', title, "\"{value}\".replace('{title}', default_return)")
-
-				result.append({
-					'priority': p['priority'],
-					'provider': p['name'],
-					'title': unquote(title),
-					'link': utils.base64_encode_url(try_eval(item, p['chapters'], 'link')),
-					'plot': try_eval(item, p['chapters'], 'plot')
-				})
-			if 'reverse' in p['chapters'] and p['chapters']['reverse'] == 'true':
-				result.reverse()
 	return result
 
+def blogspot_url(url):
+	r = []
+	if 'bp.blogspot.com' in url:
+		last = '/'.join(url.split('/')[3:])
+		#for i in range(1,5):
+		#	r.append("https://%s.bp.blogspot.com/%s" % (i, last))
+		#r.append("https://lh4.googleusercontent.com/%s" % last) # 3
+		r.append(fix_blogspot_url(url))
+		#r.append(fix_blogspot_url(url) + '=s0-rj')
+		#r.append(fix_blogspot_url(url) + '=s0-h')
+		#r.append(fix_blogspot_url(url) + '=s0-g')
+		#r.append(fix_blogspot_url(url) + '=s0-d')
+		return r
+	else:
+		return None
+
+def fix_blogspot_url(url):
+	# ref: https://gist.github.com/Sauerstoffdioxid/2a0206da9f44dde1fdfce290f38d2703
+	# s0-Ic42
+	# s0-g
+	s = url.split('=')
+	if len(s) > 1:
+		url = s[0] #+ '=s0-c42-nw'
+		xml = do_request('get', url + '=g')
+		match = re.findall(r'(http.*googleusercontent.com.*)"\stiler_version_number', xml.text)
+		url = match[0].split('/')
+		url.insert(7, 's1600')
+		return '/'.join(url)
+	return url
 
 def do_list_pages(provider, url):
 	result = []
 	url = utils.base64_decode_url(url)
-	print('url --- ',url)
+	#print('url --- ',url)
 	for p in all_providers:
 		if p['name'] == provider:
 			partial_result = []
@@ -215,12 +259,24 @@ def do_list_pages(provider, url):
 					#link = attrs[p['pages']['link']]
 					link = try_eval(item, p['pages'], 'link')
 					link = try_eval(item, p['pages'], 'mutate_link', link, "\"{value}\".replace('{link}', default_return)")
+					link = link.replace('http://','https://') # force ssl
 
-					partial_result.append({
-						'title': unquote(title),
-						'link_b64': utils.base64_encode_url(link.strip()),
-						'link': link.strip()
-					})
+					b = blogspot_url(link)
+					if b != None:
+						count = 1
+						for uu in b:
+							partial_result.append({
+								'title': unquote(title) + ' ' + str(count),
+								'link_b64': utils.base64_encode_url(uu.strip()),
+								'link': uu.strip()
+							})
+							count += 1
+					else:
+						partial_result.append({
+							'title': unquote(title),
+							'link_b64': utils.base64_encode_url(link.strip()),
+							'link': link.strip()
+						})
 				except ET.ParseError:
 					print('parser error', str(item))
 					continue

@@ -69,6 +69,17 @@
 			"plot": "item('div', order=2)",
 			"link": "item('a', attribute='href', order=2)"
 		},
+		"popular": {
+			"request": {
+				"url": "https://mangaonline.biz/mais-vistos/",
+				"type": "get"
+			},
+			"rows": "find_all('div', ('id','archive-content'))",
+			"title": "item('a', order=2)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "item('div', order=2)",
+			"link": "'https://mangaonline.biz' + item('a', attribute='href', order=2)"
+		},
 		"chapters": {
 			"request": {
 				"type": "get"
@@ -206,7 +217,60 @@
 			"mutate_link": "'/'.join(['https:'] + '{link}'.replace('http:/', '').replace('https:/', '').split('/'))",
 			"reverse": "false"
 		}
-	}
+	},
 
+
+
+	{
+		"name": "xoxocomic",
+		"lang": "en",
+		"type": "hq",
+		"priority": 2,
+		"color": "ff008080",
+		"search": {
+			"request": {
+				"url": "https://xoxocomic.com/search-comic?keyword={query}&page={page}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "find_once('div', ('class','row')).find_all('div', ('class','item'))",	
+			"title": "item('a', attribute='title', order=1)",
+			"image": "item('img', attribute='data-original', order=1)",
+			"plot": "str(item.find('div', ('class','box_test')))",
+			"link": "item('a', attribute='href', order=1) + '?page={page}'"
+		},
+		"popular": {
+			"request": {
+				"url": "https://xoxocomic.com/popular-comic?page={page}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "find_once('div', ('class','row')).find_all('div', ('class','item'))",	
+			"title": "item('a', attribute='title', order=1)",
+			"image": "item('img', attribute='data-original', order=1)",
+			"plot": "item.find_once('div', ('class','box_test'))",
+			"link": "item('a', attribute='href', order=1) + '?page={page}'"
+		},
+		"chapters": {
+			"request": {
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "find_once('div', ('class', 'list-chapter')).find_once('nav').find_once('ul').find_all('li', ('class','row'))",
+			"title": "item('a', order=1)",
+			"plot": "",
+			"link": "item('a', attribute='href', order=1) + '/all'",
+			"reverse": "false"
+		},
+		"pages": {
+			"request": {
+				"type": "get"
+			},
+			"rows": "find_all('div', ('class','page-chapter'))",
+			"title": "item('img', attribute='alt', order=1)",
+			"link": "item('img', attribute='data-original', order=1)",
+			"reverse": "false"
+		}
+	}
 
 ]

@@ -10,6 +10,8 @@ from kodi_six import xbmc, xbmcgui, xbmcplugin, xbmcaddon, xbmcvfs
 from xbmcgui import ListItem
 from xbmcplugin import addDirectoryItem, endOfDirectory
 
+FIRST_PAGE = 1
+
 plugin = routing.Plugin()
 
 @plugin.route('/')
@@ -18,34 +20,34 @@ def index():
 	utils.createFolder(input_query, utils.localStr(32000), [])
 	# comics
 	utils.createFolder(index, utils.localStr(32008), []) # separator
-	utils.createFolder(popular, utils.localStr(32001), ['hq', 1])
+	utils.createFolder(popular, utils.localStr(32001), ['hq', FIRST_PAGE])
 	utils.createFolder(recommended_comics, utils.localStr(32003), [])
-	utils.createFolder(search, utils.localStr(32005), ['dc',1])
-	utils.createFolder(search, utils.localStr(32004), ['marvel',1])
+	utils.createFolder(search, utils.localStr(32005), ['dc',FIRST_PAGE])
+	utils.createFolder(search, utils.localStr(32004), ['marvel',FIRST_PAGE])
 	# mangas
 	utils.createFolder(index, utils.localStr(32009), []) # separator
-	utils.createFolder(popular, utils.localStr(32002), ['manga', 1])
+	utils.createFolder(popular, utils.localStr(32002), ['manga', FIRST_PAGE])
 	utils.createFolder(recommended_mangas, utils.localStr(32003), [])
 	utils.endDirectory()
 
 @plugin.route('/recommended_comics')
 def recommended_comics():
-	utils.createFolder(search, "Jericho", ['jericho',1])
-	utils.createFolder(search, "X-Men", ['x-men',1])
-	utils.createFolder(search, "Superman", ['superman',1])
-	utils.createFolder(search, "batman", ['batman',1])
-	utils.createFolder(search, "Conan", ['conan',1])
-	utils.createFolder(search, "The Boys", ['the boys',1])
-	utils.createFolder(search, "The Walking Dead", ['the walking dead',1])
+	utils.createFolder(search, "Jericho", ['jericho',FIRST_PAGE])
+	utils.createFolder(search, "X-Men", ['x-men',FIRST_PAGE])
+	utils.createFolder(search, "Superman", ['superman',FIRST_PAGE])
+	utils.createFolder(search, "batman", ['batman',FIRST_PAGE])
+	utils.createFolder(search, "Conan", ['conan',FIRST_PAGE])
+	utils.createFolder(search, "The Boys", ['the boys',FIRST_PAGE])
+	utils.createFolder(search, "The Walking Dead", ['the walking dead',FIRST_PAGE])
 	utils.endDirectory()
 
 @plugin.route('/recommended_mangas')
 def recommended_mangas():
-	utils.createFolder(search, "Akira", ['akira',1])
-	utils.createFolder(search, "One Piece", ['one piece',1])
-	utils.createFolder(search, "Naruto", ['naruto',1])
-	utils.createFolder(search, "Dragon Ball", ['dragon ball',1])
-	utils.createFolder(search, "Death Note", ['death note',1])
+	utils.createFolder(search, "Akira", ['akira',FIRST_PAGE])
+	utils.createFolder(search, "One Piece", ['one piece',FIRST_PAGE])
+	utils.createFolder(search, "Naruto", ['naruto',FIRST_PAGE])
+	utils.createFolder(search, "Dragon Ball", ['dragon ball',FIRST_PAGE])
+	utils.createFolder(search, "Death Note", ['death note',FIRST_PAGE])
 	utils.endDirectory()
 
 @plugin.route('/input_query')
@@ -53,10 +55,10 @@ def input_query():
 	kb = xbmc.Keyboard('', utils.localStr(32000))
 	kb.doModal()
 	if kb.isConfirmed():
-	    search(kb.getText(), 1)
+	    search(kb.getText(), FIRST_PAGE)
 	else:
-	    #index()
-		None
+	    index()
+		#None
 
 
 @plugin.route('/show_image/<url>')
@@ -70,7 +72,7 @@ def search(query, page):
 	for result in results:
 		utils.createFolder(list_chapters,
 							result['title'],
-							[result['provider'], result['link']],
+							[result['provider'], result['link'], FIRST_PAGE],
 							image = result['image'],
 							plot = result['plot'])
 	if int(page) > 1:
@@ -85,7 +87,7 @@ def popular(type, page):
 	for result in results:
 		utils.createFolder(list_chapters,
 							result['title'],
-							[result['provider'], result['link']],
+							[result['provider'], result['link'], FIRST_PAGE],
 							image = result['image'],
 							plot = result['plot'])
 	if int(page) > 1:
@@ -95,13 +97,21 @@ def popular(type, page):
 	utils.endDirectory()
 
 
-@plugin.route('/chapters/<provider>/<url>')
-def list_chapters(provider, url):
-	for r in providers.do_list_chapters(provider, url):
+@plugin.route('/chapters/<provider_name>/<url>/<page>')
+def list_chapters(provider_name, url, page):
+	results = providers.do_list_chapters(provider_name, url, page)
+	for r in results:
 		utils.createFolder(list_pages,
 							r['title'],
 							[r['provider'], r['link']],
 							plot = r['plot'])
+	if int(page) > 1:
+		utils.createFolder(list_chapters, utils.localStr(32007), [provider_name, url, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
+	
+	pagination = providers.has_pagination(providers.provider_by_name(provider_name)['chapters']['request'])
+	if len(results) > 0 and pagination:
+		utils.createFolder(list_chapters, utils.localStr(32006), [provider_name, url, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
+
 	utils.endDirectory()
 
 @plugin.route('/pages/<provider>/<url>')
