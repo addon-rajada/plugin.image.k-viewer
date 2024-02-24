@@ -1,5 +1,9 @@
 # K-Viewer
 
+## Controls
+
+**Keyboard**
+
 0 Zoom Normal (100%)
 1 Zoom Level 1
 2 Zoom Level 2
@@ -26,3 +30,15 @@ In Slideshow mode
 P Play
 Space Pause
 X Stop
+
+**Touchscreen**
+
+- `slide up`: rotate
+
+---
+
+## ToDo
+
+- save last query
+- settings: quality and timeout
+

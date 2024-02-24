@@ -52,3 +52,27 @@ msgstr ""
 msgctxt "#32009"
 msgid "[COLOR gold]- Mangas -[/COLOR]"
 msgstr ""
+
+msgctxt "#32010"
+msgid "Dark Horse Comics"
+msgstr ""
+
+msgctxt "#32011"
+msgid "Spider-Man"
+msgstr ""
+
+msgctxt "#32012"
+msgid "The New 52"
+msgstr ""
+
+msgctxt "#32013"
+msgid "Captain America"
+msgstr ""
+
+msgctxt "#32014"
+msgid "Avengers"
+msgstr ""
+
+msgctxt "#32015"
+msgid "Justice League"
+msgstr ""

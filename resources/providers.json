@@ -225,7 +225,7 @@
 		"name": "xoxocomic",
 		"lang": "en",
 		"type": "hq",
-		"priority": 2,
+		"priority": 1,
 		"color": "ff008080",
 		"search": {
 			"request": {
@@ -246,6 +246,42 @@
 				"pagination": "true"
 			},
 			"rows": "find_once('div', ('class','row')).find_all('div', ('class','item'))",	
+			"title": "item('a', attribute='title', order=1)",
+			"image": "item('img', attribute='data-original', order=1)",
+			"plot": "item.find_once('div', ('class','box_test'))",
+			"link": "item('a', attribute='href', order=1) + '?page={page}'"
+		},
+		"marvel": {
+			"request": {
+				"url": "https://xoxocomic.com/marvel-comic/popular?page={page}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "find_once('div', ('class','items')).find_once('div', ('class','row')).find_all('div', ('class','item'))",
+			"title": "item('a', attribute='title', order=1)",
+			"image": "item('img', attribute='data-original', order=1)",
+			"plot": "item.find_once('div', ('class','box_test'))",
+			"link": "item('a', attribute='href', order=1) + '?page={page}'"
+		},
+		"dc": {
+			"request": {
+				"url": "https://xoxocomic.com/dc-comics-comic/popular?page={page}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "find_once('div', ('class','items')).find_once('div', ('class','row')).find_all('div', ('class','item'))",
+			"title": "item('a', attribute='title', order=1)",
+			"image": "item('img', attribute='data-original', order=1)",
+			"plot": "item.find_once('div', ('class','box_test'))",
+			"link": "item('a', attribute='href', order=1) + '?page={page}'"
+		},
+		"darkhorse": {
+			"request": {
+				"url": "https://xoxocomic.com/dark-horse-comic/popular?page={page}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "find_once('div', ('class','items')).find_once('div', ('class','row')).find_all('div', ('class','item'))",
 			"title": "item('a', attribute='title', order=1)",
 			"image": "item('img', attribute='data-original', order=1)",
 			"plot": "item.find_once('div', ('class','box_test'))",

@@ -182,6 +182,6 @@ def createItem(url, label, image, **kwargs):
 	#li.addContextMenuItems(CM_items)
 	addDirectoryItem(plugin.handle, url, li)
 
-def endDirectory():
-	endOfDirectory(plugin.handle, succeeded=True, cacheToDisc=False)
+def endDirectory(cache = False):
+	endOfDirectory(plugin.handle, succeeded=True, cacheToDisc=cache)
 

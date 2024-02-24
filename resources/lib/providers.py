@@ -161,14 +161,6 @@ def process_request(provider, page, req_obj, query = ''):
 	return result
 
 
-def do_search(provider, query, page):
-	return process_request(provider, page, 'search', query)
-
-
-def do_list_popular(provider, page):
-	return process_request(provider, page, 'popular')
-	
-
 def do_list_chapters(provider, url, page):
 	result = []
 	url = utils.base64_decode_url(url)
@@ -214,12 +206,13 @@ def fix_blogspot_url(index, url):
 		return index, url
 	s = url.split('=')
 	if len(s) > 1:
-		url = s[0]
-		xml = do_request('get', url + '=g')
+		new_url = s[0]
+		xml = do_request('get', new_url + '=g')
 		match = re.findall(r'(http.*googleusercontent.com.*)"\stiler_version_number', xml.text)
-		url = match[0].split('/')
-		url.insert(7, 's1600')
-		return index, '/'.join(url)
+		try: new_url = match[0].split('/')
+		except: return index, url
+		new_url.insert(7, 's1000')
+		return index, '/'.join(new_url)
 	return index, url
 
 def do_list_pages(provider, url):
@@ -269,6 +262,20 @@ def do_list_pages(provider, url):
 		result.reverse()
 	return result
 
+def by_keyword(type, keyword, page):
+	results = []
+
+	providers = [p for p in all_providers if p['type'] == type and keyword in p]
+	num_providers = len(providers)
+	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
+
+	with ThreadPoolExecutor(max_workers = workers) as executor:
+		futures = [executor.submit(process_request, provider = x, page = page, req_obj = keyword) for x in providers]
+		for f in as_completed(futures):
+			pool_result = f.result()
+			results.extend(pool_result)
+
+	return sorted(results, key = lambda x: x['priority'])
 
 def popular(type, page):
 	results = []
@@ -278,7 +285,7 @@ def popular(type, page):
 	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
 
 	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(do_list_popular, provider = x, page = page) for x in providers]
+		futures = [executor.submit(process_request, provider = x, page = page, req_obj = 'popular') for x in providers]
 		for f in as_completed(futures):
 			pool_result = f.result()
 			results.extend(pool_result)
@@ -287,15 +294,11 @@ def popular(type, page):
 
 def search(query, page):
 	results = []
-	
-	#for p in all_providers:
-	#	s = do_search(p, query)
-	#	results.extend(s)
 
 	num_providers = len(all_providers)
 	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
 	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(do_search, provider = x, query = query, page = page) for x in all_providers]
+		futures = [executor.submit(process_request, provider = x, page = page, req_obj = 'search', query = query) for x in all_providers]
 		for f in as_completed(futures):
 			pool_result = f.result()
 			results.extend(pool_result)

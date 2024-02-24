@@ -22,8 +22,9 @@ def index():
 	utils.createFolder(index, utils.localStr(32008), []) # separator
 	utils.createFolder(popular, utils.localStr(32001), ['hq', FIRST_PAGE])
 	utils.createFolder(recommended_comics, utils.localStr(32003), [])
-	utils.createFolder(search, utils.localStr(32005), ['dc',FIRST_PAGE])
-	utils.createFolder(search, utils.localStr(32004), ['marvel',FIRST_PAGE])
+	utils.createFolder(specific_keyword, utils.localStr(32004), ['hq','marvel',FIRST_PAGE])
+	utils.createFolder(specific_keyword, utils.localStr(32005), ['hq','dc',FIRST_PAGE])
+	utils.createFolder(specific_keyword, utils.localStr(32010), ['hq','darkhorse',FIRST_PAGE])
 	# mangas
 	utils.createFolder(index, utils.localStr(32009), []) # separator
 	utils.createFolder(popular, utils.localStr(32002), ['manga', FIRST_PAGE])
@@ -35,7 +36,7 @@ def recommended_comics():
 	utils.createFolder(search, "Jericho", ['jericho',FIRST_PAGE])
 	utils.createFolder(search, "X-Men", ['x-men',FIRST_PAGE])
 	utils.createFolder(search, "Superman", ['superman',FIRST_PAGE])
-	utils.createFolder(search, "batman", ['batman',FIRST_PAGE])
+	utils.createFolder(search, "Batman", ['batman',FIRST_PAGE])
 	utils.createFolder(search, "Conan", ['conan',FIRST_PAGE])
 	utils.createFolder(search, "The Boys", ['the boys',FIRST_PAGE])
 	utils.createFolder(search, "The Walking Dead", ['the walking dead',FIRST_PAGE])
@@ -79,7 +80,7 @@ def search(query, page):
 		utils.createFolder(search, utils.localStr(32007), [query, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
 	if len(results) > 0:
 		utils.createFolder(search, utils.localStr(32006), [query, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
-	utils.endDirectory()
+	utils.endDirectory(cache=True)
 
 @plugin.route('/popular/<type>/<page>')
 def popular(type, page):
@@ -94,8 +95,22 @@ def popular(type, page):
 		utils.createFolder(popular, utils.localStr(32007), [type, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
 	if len(results) > 0:
 		utils.createFolder(popular, utils.localStr(32006), [type, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
-	utils.endDirectory()
+	utils.endDirectory(cache=True)
 
+@plugin.route('/specific_keyword/<type>/<keyword>/<page>')
+def specific_keyword(type, keyword, page):
+	results = providers.by_keyword(type, keyword, page)
+	for result in results:
+		utils.createFolder(list_chapters,
+							result['title'],
+							[result['provider'], result['link'], FIRST_PAGE],
+							image = result['image'],
+							plot = result['plot'])
+	if int(page) > 1:
+		utils.createFolder(specific_keyword, utils.localStr(32007), [type, keyword, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
+	if len(results) > 0:
+		utils.createFolder(specific_keyword, utils.localStr(32006), [type, keyword, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
+	utils.endDirectory(cache=True)
 
 @plugin.route('/chapters/<provider_name>/<url>/<page>')
 def list_chapters(provider_name, url, page):
@@ -120,7 +135,9 @@ def list_pages(provider, url):
 		img_url = plugin.url_for(show_image, r['link_b64'])
 		print('pageurl', url)
 		#utils.createItem(img_url, r['title'], r['link'])
-		utils.createItem(r['link'], r['title'], r['link'])
+		thumb = 'icon.png'
+		thumb = r['link']
+		utils.createItem(r['link'], r['title'], thumb)
 		
 		#li = ListItem(r['title'])
 		#li.setProperty('IsPlayable', 'true')
