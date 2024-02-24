@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2024 gbchr
+
 import os
 import json
 import re
@@ -203,86 +206,67 @@ def do_list_chapters(provider, url, page):
 
 	return result
 
-def blogspot_url(url):
-	r = []
-	if 'bp.blogspot.com' in url:
-		last = '/'.join(url.split('/')[3:])
-		#for i in range(1,5):
-		#	r.append("https://%s.bp.blogspot.com/%s" % (i, last))
-		#r.append("https://lh4.googleusercontent.com/%s" % last) # 3
-		r.append(fix_blogspot_url(url))
-		#r.append(fix_blogspot_url(url) + '=s0-rj')
-		#r.append(fix_blogspot_url(url) + '=s0-h')
-		#r.append(fix_blogspot_url(url) + '=s0-g')
-		#r.append(fix_blogspot_url(url) + '=s0-d')
-		return r
-	else:
-		return None
-
-def fix_blogspot_url(url):
+def fix_blogspot_url(index, url):
 	# ref: https://gist.github.com/Sauerstoffdioxid/2a0206da9f44dde1fdfce290f38d2703
 	# s0-Ic42
 	# s0-g
+	if ('bp.blogspot.com' not in url) and ('googleusercontent.com' not in url):
+		return index, url
 	s = url.split('=')
 	if len(s) > 1:
-		url = s[0] #+ '=s0-c42-nw'
+		url = s[0]
 		xml = do_request('get', url + '=g')
 		match = re.findall(r'(http.*googleusercontent.com.*)"\stiler_version_number', xml.text)
 		url = match[0].split('/')
 		url.insert(7, 's1600')
-		return '/'.join(url)
-	return url
+		return index, '/'.join(url)
+	return index, url
 
 def do_list_pages(provider, url):
 	result = []
 	url = utils.base64_decode_url(url)
-	#print('url --- ',url)
-	for p in all_providers:
-		if p['name'] == provider:
-			partial_result = []
-			cc = do_request(p['chapters']['request']['type'], url)
-			if cc == None: continue
-			dom = Html().feed(cc.text)
-			b = eval('dom.' + p['pages']['rows'])
-			for item in b:
-				try:
-					#if p['pages']['type'] == 'tag_attrib_from_rows':
-						#attrs = ET.fromstring(str(item)).attrib
-						#print(item, attrs)
+	p = provider_by_name(provider)
+	# request
+	resp = do_request(p['chapters']['request']['type'], url)
+	if resp == None: return result
+	# process rows
+	dom = Html().feed(resp.text)
+	rows = eval('dom.' + p['pages']['rows'])
+	for item in rows:
+		try:
+			#if p['pages']['type'] == 'tag_attrib_from_rows':
+				#attrs = ET.fromstring(str(item)).attrib
+				#print(item, attrs)
+			# process title
+			#title = attrs[p['pages']['title']]
+			title = try_eval(item, p['pages'], 'title')
+			if 'mutate_title' in p['pages']:
+				title = eval(p['pages']['mutate_title'].replace('{title}', title))
+			# process link
+			link = try_eval(item, p['pages'], 'link')
+			link = try_eval(item, p['pages'], 'mutate_link', link, "\"{value}\".replace('{link}', default_return)")
+			link = link.replace('http://','https://') # force https
+			# new result
+			result.append({
+				'title': unquote(title),
+				'link_b64': utils.base64_encode_url(link.strip()),
+				'link': link.strip()
+			})
+		except ET.ParseError:
+			print('parser error', str(item))
+			continue
 
-					# process title
-					#title = attrs[p['pages']['title']]
-					title = try_eval(item, p['pages'], 'title')
-					if 'mutate_title' in p['pages']:
-						title = eval(p['pages']['mutate_title'].replace('{title}', title))
-
-					#link = attrs[p['pages']['link']]
-					link = try_eval(item, p['pages'], 'link')
-					link = try_eval(item, p['pages'], 'mutate_link', link, "\"{value}\".replace('{link}', default_return)")
-					link = link.replace('http://','https://') # force ssl
-
-					b = blogspot_url(link)
-					if b != None:
-						count = 1
-						for uu in b:
-							partial_result.append({
-								'title': unquote(title) + ' ' + str(count),
-								'link_b64': utils.base64_encode_url(uu.strip()),
-								'link': uu.strip()
-							})
-							count += 1
-					else:
-						partial_result.append({
-							'title': unquote(title),
-							'link_b64': utils.base64_encode_url(link.strip()),
-							'link': link.strip()
-						})
-				except ET.ParseError:
-					print('parser error', str(item))
-					continue
-			if 'reverse' in p['pages'] and p['pages']['reverse'] == 'true':
-				partial_result.reverse()
-			result.extend(partial_result)
+	# blogspot url fix
+	num_pages = len(result)
+	workers = num_pages if (num_pages > 0 and num_pages <= 16) else 16
+	with ThreadPoolExecutor(max_workers = workers) as executor:
+		futures = [executor.submit(fix_blogspot_url, index = result.index(x), url = x['link']) for x in result]
+		for f in as_completed(futures):
+			index, new_url = f.result()
+			result[index]['link'] = new_url
+	# reverse
+	if 'reverse' in p['pages'] and p['pages']['reverse'] == 'true':
+		result.reverse()
 	return result
 
 
