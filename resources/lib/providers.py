@@ -194,6 +194,9 @@ def do_list_chapters(provider, url, page):
 		if 'mutate_title' in p['chapters']:
 			title = eval(p['chapters']['mutate_title'].replace('{title}', title))
 		title = try_eval(item, p['chapters'], 'mutate_title', title, "\"{value}\".replace('{title}', default_return)")
+		# process image
+		try: image = eval(p['chapters']['image'])
+		except: image = utils.icon_img
 		# process link
 		link = eval(p['chapters']['link'])
 		if not link.startswith('http'): continue
@@ -202,6 +205,7 @@ def do_list_chapters(provider, url, page):
 			'priority': p['priority'],
 			'provider': p['name'],
 			'title': unquote(title),
+			'image': image,
 			'link': utils.base64_encode_url(link),
 			'plot': '' #try_eval(item, p['chapters'], 'plot')
 		})

@@ -7,5 +7,6 @@ galaxiadosquadrinhos.com.br | comics | portuguese | some posts will point to ext
 mangananquim.com | mangas | portuguese | - |
 mangaonline.biz | mangas | portuguese | - |
 mangapill.com | mangas | english | cloudflare for images url |
+readcomics.top | comics | english | - |
 xoxocomic.com | comics | english | - |
 

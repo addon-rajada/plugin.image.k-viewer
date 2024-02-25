@@ -365,8 +365,84 @@
 			"link": "item('img', attribute='data-src', order=1)",
 			"reverse": "false"
 		}
-	}
+	},
 
+
+
+	{
+		"name": "readcomics",
+		"lang": "en",
+		"type": "hq",
+		"priority": 1,
+		"color": "ffe8702a",
+		"search": {
+			"request": {
+				"url": "https://readcomics.top/advanced-search?key={query}&page={page}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "find_once('div', ('class','detailed-list')).find_all('div', ('class','dl-box'))",	
+			"title": "item('a', order=2)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "",
+			"link": "item('a', attribute='href', order=2)"
+		},
+		"popular": {
+			"request": {
+				"url": "https://readcomics.top/popular-comics?page={page}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "find_once('div', ('class','eg-list')).find_all('div', ('class','eg-box'))",	
+			"title": "item('a', order=2)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "",
+			"link": "item('a', attribute='href', order=2)"
+		},
+		"marvel": {
+			"request": {
+				"url": "https://readcomics.top/genre/marvel?page={page}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "find_once('div', ('class','image-genre-list')).find_all('div', ('class','ig-grid'))",
+			"title": "item('a', order=2)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "",
+			"link": "item('a', attribute='href', order=2)"
+		},
+		"dc": {
+			"request": {
+				"url": "https://readcomics.top/genre/dc-comics?page={page}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "find_once('div', ('class','image-genre-list')).find_all('div', ('class','ig-grid'))",
+			"title": "item('a', order=2)",
+			"image": "item('img', attribute='src', order=1)",
+			"plot": "",
+			"link": "item('a', attribute='href', order=2)"
+		},
+		"chapters": {
+			"request": {
+				"type": "get"
+			},
+			"rows": "find_once('ul', ('class', 'basic-list')).find_all('li')",
+			"title": "item('a', order=1)",
+			"image": "dom.find_once('div', ('class', 'anime-details')).find_once('img').attr['src']",
+			"link": "item('a', attribute='href', order=1) + '/full'",
+			"reverse": "true"
+		},
+		"pages": {
+			"request": {
+				"type": "get"
+			},
+			"rows": "find_once('div', ('class', 'chapter-container')).find_all('img')",
+			"title": "item.attr['alt']",
+			"link": "item.attr['src']",
+			"reverse": "true"
+		}
+	}
 	
 
 ]

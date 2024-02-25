@@ -119,7 +119,9 @@ def list_chapters(provider_name, url, page):
 		utils.createFolder(list_pages,
 							r['title'],
 							[r['provider'], r['link']],
-							plot = r['plot'])
+							plot = r['plot'],
+							image = r['image'],
+							thumb = r['image'])
 	if int(page) > 1:
 		utils.createFolder(list_chapters, utils.localStr(32007), [provider_name, url, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
 	
