@@ -146,12 +146,11 @@ def list_chapters(provider_name, url, page):
 @plugin.route('/pages/<provider>/<url>')
 def list_pages(provider, url):
 	for r in providers.do_list_pages(provider, url):
-		img_url = plugin.url_for(show_image, r['link_b64'])
-		print('pageurl', url)
+		#img_url = plugin.url_for(show_image, r['link_b64'])
+		link = utils.base64_decode_url(r['link'])
+		print('pageurl', link)
 		#utils.createItem(img_url, r['title'], r['link'])
-		thumb = 'icon.png'
-		thumb = r['link']
-		utils.createItem(r['link'], r['title'], thumb)
+		utils.createItem(link, r['title'], link)
 	utils.endDirectory()
 
 if __name__ == '__main__':

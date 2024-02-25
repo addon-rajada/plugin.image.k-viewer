@@ -60,7 +60,7 @@ def parser_type(parser_obj):
 	else:
 		return 'html'
 
-def do_request(type, url, timeout = 5, headers = {}):
+def do_request(type, url, timeout = 5, headers = {}, depth = 0):
 	try:
 		if type == 'get':
 			resp = requests.get(url, timeout=timeout, headers=headers)
@@ -68,8 +68,17 @@ def do_request(type, url, timeout = 5, headers = {}):
 			resp = requests.post(url, timeout=timeout, headers=headers)
 		return resp
 	except requests.exceptions.Timeout:
-		print('timeout error')
-		return None
+		print('timeout error. depth:', depth)
+		if depth == 2: return None # 2 retries
+		else:
+			depth += 1
+			return do_request(type, url, timeout, headers, depth)
+	except requests.exceptions.ConnectionError:
+		print('connection error. depth:', depth)
+		if depth == 3: return None # 3 retries
+		else:
+			depth += 1
+			return do_request(type, url, timeout, headers, depth)
 
 def try_eval(item, object, key, default_return = 'nothing to eval', pre_function = None):
 	if (key in object and object[key] != ""):
@@ -79,6 +88,46 @@ def try_eval(item, object, key, default_return = 'nothing to eval', pre_function
 		return eval(object[key])
 	else:
 		return default_return
+
+def json_process(resp, provider, req_obj):
+	result = []
+	try: rows = eval("%s%s" % ('resp.json()', provider[req_obj]['rows']))
+	except: rows = []
+
+	for item in rows:
+		# process image
+		try: image = eval("%s%s" % ('item', provider[req_obj]['image']))
+		except: image = utils.icon_img
+		try: image_auxiliar = eval("%s%s" % ('item', provider[req_obj]['image_auxiliar']))
+		except: image_auxiliar = ''
+		for key, value in provider[req_obj].items():
+			if key.startswith('mutate_image'):
+				try: image = eval(value.replace('{image}',repr(image)).replace('{image_auxiliar}',repr(image_auxiliar)))
+				except: pass
+		# process title
+		try: title = eval("%s%s" % ('item', provider[req_obj]['title']))
+		except: title = ''
+		if 'exclude_title_with_words' in provider[req_obj]:
+			if any(w in title for w in provider[req_obj]['exclude_title_with_words'].split('|')):
+				continue
+		if 'mutate_title' in provider[req_obj]:
+			title = eval(provider[req_obj]['mutate_title'].replace('{title}', title))
+		title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
+		# process link
+		try: link = eval("%s%s" % ('item', provider[req_obj]['link']))
+		except: link = ''
+		if 'mutate_link' in provider[req_obj]:
+			link = eval(provider[req_obj]['mutate_link'].replace('{link}',repr(link)))
+		# new result
+		result.append({
+			'priority': provider['priority'],
+			'provider': provider['name'],
+			'title': unquote(title),
+			'image': image,
+			'link': utils.base64_encode_url(link),
+			'plot': ''
+		})
+	return result
 
 def process_request(provider, page, req_obj, query = ''):
 	result = []
@@ -100,37 +149,7 @@ def process_request(provider, page, req_obj, query = ''):
 
 	# json parser
 	if parser_type(provider[req_obj]) == 'json':
-		try: rows = eval("%s%s" % ('resp.json()', provider[req_obj]['rows']))
-		except: rows = []
-
-		for item in rows:
-			# process image
-			try: image = eval("%s%s" % ('item', provider[req_obj]['image']))
-			except: image = utils.icon_img
-
-			# process title
-			try: title = eval("%s%s" % ('item', provider[req_obj]['title']))
-			except: title = ''
-			if 'exclude_title_with_words' in provider[req_obj]:
-				if any(w in title for w in provider[req_obj]['exclude_title_with_words'].split('|')):
-					continue
-			title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
-
-			# process link
-			try: link = eval("%s%s" % ('item', provider[req_obj]['link']))
-			except: link = ''
-			if 'mutate_link' in provider[req_obj]:
-				link = eval(provider[req_obj]['mutate_link'].replace('{link}',repr(link)))
-
-			# new result
-			result.append({
-				'priority': provider['priority'],
-				'provider': provider['name'],
-				'title': unquote(title),
-				'image': image,
-				'link': utils.base64_encode_url(link),
-				'plot': ''
-			})
+		result = json_process(resp, provider, req_obj)
 
 	# html parser
 	elif parser_type(provider[req_obj]) == 'html':
@@ -179,30 +198,39 @@ def do_list_chapters(provider, url, page):
 	# request
 	resp = do_request(p['chapters']['request']['type'], url)
 	if resp == None: return result
-	# process rows
-	dom = Html().feed(resp.text)
-	rows = eval('dom.' + p['chapters']['rows'])
-	for item in rows:
-		# process title
-		title = try_eval(item, p['chapters'], 'title')
-		if 'mutate_title' in p['chapters']:
-			title = eval(p['chapters']['mutate_title'].replace('{title}', title))
-		title = try_eval(item, p['chapters'], 'mutate_title', title, "\"{value}\".replace('{title}', default_return)")
-		# process image
-		try: image = eval(p['chapters']['image'])
-		except: image = utils.icon_img
-		# process link
-		link = eval(p['chapters']['link'])
-		if not link.startswith('http'): continue
-		# new result
-		result.append({
-			'priority': p['priority'],
-			'provider': p['name'],
-			'title': unquote(title),
-			'image': image,
-			'link': utils.base64_encode_url(link),
-			'plot': '' #try_eval(item, p['chapters'], 'plot')
-		})
+
+	# json parser
+	if parser_type(p['chapters']) == 'json':
+		result = json_process(resp, p, 'chapters')
+
+	# html parser
+	elif parser_type(p['chapters']) == 'html':
+		# process rows
+		dom = Html().feed(resp.text)
+		rows = eval('dom.' + p['chapters']['rows'])
+		for item in rows:
+			# process title
+			title = try_eval(item, p['chapters'], 'title')
+			if 'mutate_title' in p['chapters']:
+				title = eval(p['chapters']['mutate_title'].replace('{title}', title))
+			title = try_eval(item, p['chapters'], 'mutate_title', title, "\"{value}\".replace('{title}', default_return)")
+			# process image
+			try: image = eval(p['chapters']['image'])
+			except: image = utils.icon_img
+			# process link
+			link = eval(p['chapters']['link'])
+			if not link.startswith('http'): continue
+			# new result
+			result.append({
+				'priority': p['priority'],
+				'provider': p['name'],
+				'title': unquote(title),
+				'image': image,
+				'link': utils.base64_encode_url(link),
+				'plot': '' #try_eval(item, p['chapters'], 'plot')
+			})
+
+	# reverse
 	if 'reverse' in p['chapters'] and p['chapters']['reverse'] == 'true':
 		result.reverse()
 
@@ -235,32 +263,38 @@ def do_list_pages(provider, url):
 		custom_headers = p['pages']['request']['headers']
 	resp = do_request(p['pages']['request']['type'], url, headers = custom_headers)
 	if resp == None: return result
-	# process rows
-	dom = Html().feed(resp.text)
-	rows = eval('dom.' + p['pages']['rows'])
-	for item in rows:
-		try:
-			#if p['pages']['type'] == 'tag_attrib_from_rows':
-				#attrs = ET.fromstring(str(item)).attrib
-				#print(item, attrs)
-			# process title
-			#title = attrs[p['pages']['title']]
-			title = try_eval(item, p['pages'], 'title')
-			if 'mutate_title' in p['pages']:
-				title = eval(p['pages']['mutate_title'].replace('{title}', title))
-			# process link
-			link = try_eval(item, p['pages'], 'link')
-			link = try_eval(item, p['pages'], 'mutate_link', link, "\"{value}\".replace('{link}', default_return)")
-			link = link.replace('http://','https://') # force https
-			# new result
-			result.append({
-				'title': unquote(title),
-				'link_b64': utils.base64_encode_url(link.strip()),
-				'link': link.strip()
-			})
-		except ET.ParseError:
-			print('parser error', str(item))
-			continue
+
+	# json parser
+	if parser_type(p['pages']) == 'json':
+		result = json_process(resp, p, 'pages')
+
+	# html parser
+	elif parser_type(p['pages']) == 'html':
+		# process rows
+		dom = Html().feed(resp.text)
+		rows = eval('dom.' + p['pages']['rows'])
+		for item in rows:
+			try:
+				#if p['pages']['type'] == 'tag_attrib_from_rows':
+					#attrs = ET.fromstring(str(item)).attrib
+					#print(item, attrs)
+				# process title
+				#title = attrs[p['pages']['title']]
+				title = try_eval(item, p['pages'], 'title')
+				if 'mutate_title' in p['pages']:
+					title = eval(p['pages']['mutate_title'].replace('{title}', title))
+				# process link
+				link = try_eval(item, p['pages'], 'link')
+				link = try_eval(item, p['pages'], 'mutate_link', link, "\"{value}\".replace('{link}', default_return)")
+				link = link.replace('http://','https://') # force https
+				# new result
+				result.append({
+					'title': unquote(title),
+					'link': utils.base64_encode_url(link.strip())
+				})
+			except ET.ParseError:
+				print('parser error', str(item))
+				continue
 
 	# blogspot url fix
 	num_pages = len(result)
@@ -306,7 +340,7 @@ if __name__ == '__main__':
 		print('Showing first 5 chapters')
 		for chap in chapters[:5]:
 			print(chap['title'])
-			print(r['image'])
+			print(chap['image'])
 			print(utils.base64_decode_url(chap['link']))
 			print('-'*50)
 
@@ -319,5 +353,5 @@ if __name__ == '__main__':
 		print('Showing first 5 pages')
 		for p in pages[:5]:
 			print(p['title'])
-			print(p['link'])
+			print(utils.base64_decode_url(p['link']))
 			print('-'*50)
