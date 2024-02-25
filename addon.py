@@ -33,22 +33,34 @@ def index():
 
 @plugin.route('/recommended_comics')
 def recommended_comics():
-	utils.createFolder(search, "Jericho", ['jericho',FIRST_PAGE])
-	utils.createFolder(search, "X-Men", ['x-men',FIRST_PAGE])
-	utils.createFolder(search, "Superman", ['superman',FIRST_PAGE])
-	utils.createFolder(search, "Batman", ['batman',FIRST_PAGE])
-	utils.createFolder(search, "Conan", ['conan',FIRST_PAGE])
-	utils.createFolder(search, "The Boys", ['the boys',FIRST_PAGE])
-	utils.createFolder(search, "The Walking Dead", ['the walking dead',FIRST_PAGE])
+	items = [
+			'Asterix',
+			'Batman',
+			'Conan',
+			'Jericho',
+			'Superman',
+			'The Boys',
+			'The New 52',
+			'The Walking Dead',
+			'Watchmen',
+			'X-Men',
+			]
+	for i in items:
+		utils.createFolder(search, i, [i, FIRST_PAGE])
 	utils.endDirectory()
+
 
 @plugin.route('/recommended_mangas')
 def recommended_mangas():
-	utils.createFolder(search, "Akira", ['akira',FIRST_PAGE])
-	utils.createFolder(search, "One Piece", ['one piece',FIRST_PAGE])
-	utils.createFolder(search, "Naruto", ['naruto',FIRST_PAGE])
-	utils.createFolder(search, "Dragon Ball", ['dragon ball',FIRST_PAGE])
-	utils.createFolder(search, "Death Note", ['death note',FIRST_PAGE])
+	items = [
+			'Akira',
+			'Death Note',
+			'Dragon Ball',
+			'Naruto',
+			'One Piece'
+			]
+	for i in items:
+		utils.createFolder(search, i, [i, FIRST_PAGE])
 	utils.endDirectory()
 
 @plugin.route('/input_query')

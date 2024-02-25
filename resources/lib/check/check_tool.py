@@ -1,27 +1,33 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2024 gbchr
 
-import os
-import json
-import re
-import requests
-from resources.lib.parser.ehp import *
-from resources.lib import utils
+import os, sys, json, requests, base64, re
 import xml.etree.ElementTree as ET
-
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from ehp_mod import *
 
-import sys
-if sys.version_info[0] == 2:
-	from urllib import quote, unquote
-else:
-	from urllib.parse import quote, unquote
+if sys.version_info[0] == 2: from urllib import quote, unquote
+else: from urllib.parse import quote, unquote
+
+class utils:
+
+	icon_img = 'icon.png'
+
+	@staticmethod
+	def base64_encode_url(value):
+		encoded = str(base64.b64encode(bytes(value, "utf-8")), 'utf-8')
+		return encoded.replace('=', '').replace('+', '-').replace('/', '_')
+
+	@staticmethod
+	def base64_decode_url(data):
+	    value = data.replace('-', '+').replace('_', '/')
+	    value += '=' * (len(value) % 4)
+	    return str(base64.b64decode(value), 'utf-8') # urlsafe_
+
 
 def _load_file(path):
     if not os.path.exists(path):
-        print('erro')
         return
-
     try:
         with open(path, encoding="utf-8") as file:
             providers = json.load(file)
@@ -31,7 +37,7 @@ def _load_file(path):
         import traceback
         print("Failed importing providers from %s: %s" % (path, repr(e)))
 
-all_providers = _load_file(os.path.join(os.path.dirname(__file__), '..', 'providers.json'))
+all_providers = _load_file(os.path.join(os.path.dirname(__file__), '..', '..', 'providers.json'))
 
 def provider_by_name(name):
 	for p in all_providers:
@@ -48,13 +54,6 @@ def has_pagination(request_obj):
 		elif request_obj['pagination'] == 'true':
 			return True
 
-def is_enabled(provider_obj):
-	if 'enabled' in provider_obj:
-		if provider_obj['enabled'] == "true": return True
-		elif provider_obj['enabled'] == "false": return False
-	else:
-		return True # default is enabled
-
 def parser_type(parser_obj):
 	if 'type' in parser_obj:
 		return parser_obj['type']
@@ -62,20 +61,15 @@ def parser_type(parser_obj):
 		return 'html'
 
 def do_request(type, url, timeout = 5, headers = {}):
-	#s = requests.Session()
-	#s.headers = {}
 	try:
 		if type == 'get':
 			resp = requests.get(url, timeout=timeout, headers=headers)
-			#resp = s.get(url, timeout=timeout, headers=headers)
 		elif type == 'post':
 			resp = requests.post(url, timeout=timeout, headers=headers)
 		return resp
-
 	except requests.exceptions.Timeout:
 		print('timeout error')
 		return None
-
 
 def try_eval(item, object, key, default_return = 'nothing to eval', pre_function = None):
 	if (key in object and object[key] != ""):
@@ -281,46 +275,49 @@ def do_list_pages(provider, url):
 		result.reverse()
 	return result
 
-def by_keyword(type, keyword, page):
-	results = []
 
-	providers = [p for p in all_providers if (p['type'] == type and keyword in p and is_enabled(p))]
-	num_providers = len(providers)
-	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
 
-	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(process_request, provider = x, page = page, req_obj = keyword) for x in providers]
-		for f in as_completed(futures):
-			pool_result = f.result()
-			results.extend(pool_result)
+if __name__ == '__main__':
 
-	return sorted(results, key = lambda x: x['priority'])
+	# args
+	print(sys.argv)
+	provider_name = sys.argv[1]
+	keyword = sys.argv[2]
+	query = ''
+	if keyword == 'search':
+		query = quote(sys.argv[3])
 
-def popular(type, page):
-	results = []
+	# results
+	provider = provider_by_name(provider_name)
+	results = process_request(provider, 1, keyword, query)
+	print('#'*50)
+	for r in results:
+		print(r['title'])
+		print(r['image'])
+		print(utils.base64_decode_url(r['link']))
+		print('-'*50)
 
-	providers = [p for p in all_providers if (p['type'] == type and 'popular' in p and is_enabled(p))]
-	num_providers = len(providers)
-	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
+	# chapters
+	check_chap = input('Want to check chapters from first result? [Y][n] ')
+	if check_chap == 'Y':
+		chapters = do_list_chapters(provider_name, results[0]['link'], 1)
+		print('#'*50)
+		print('Total chapters', len(chapters))
+		print('Showing first 5 chapters')
+		for chap in chapters[:5]:
+			print(chap['title'])
+			print(r['image'])
+			print(utils.base64_decode_url(chap['link']))
+			print('-'*50)
 
-	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(process_request, provider = x, page = page, req_obj = 'popular') for x in providers]
-		for f in as_completed(futures):
-			pool_result = f.result()
-			results.extend(pool_result)
-
-	return sorted(results, key = lambda x: x['priority'])
-
-def search(query, page):
-	results = []
-
-	providers = [p for p in all_providers if is_enabled(p)]
-	num_providers = len(providers)
-	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
-	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(process_request, provider = x, page = page, req_obj = 'search', query = query) for x in providers]
-		for f in as_completed(futures):
-			pool_result = f.result()
-			results.extend(pool_result)
-
-	return sorted(results, key = lambda x: x['priority'])
+	# pages
+	check_pages = input('Want to check pages from first chapter? [Y][n] ')
+	if check_pages == 'Y':
+		pages = do_list_pages(provider_name, chapters[0]['link'])
+		print('#'*50)
+		print('Total pages', len(pages))
+		print('Showing first 5 pages')
+		for p in pages[:5]:
+			print(p['title'])
+			print(p['link'])
+			print('-'*50)
