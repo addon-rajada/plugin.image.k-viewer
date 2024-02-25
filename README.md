@@ -32,6 +32,5 @@ Comics and Mangas Viewer for Kodi
 
 ## ToDo
 
-- save last query
 - settings: quality and timeout
 - comics by first letter

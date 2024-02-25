@@ -53,13 +53,13 @@ def recommended_mangas():
 
 @plugin.route('/input_query')
 def input_query():
-	kb = xbmc.Keyboard('', utils.localStr(32000))
+	kb = xbmc.Keyboard(utils.read_query(), utils.localStr(32000))
 	kb.doModal()
 	if kb.isConfirmed():
-	    search(kb.getText(), FIRST_PAGE)
-	else:
-	    index()
-		#None
+		text = kb.getText()
+		utils.save_query(text)
+		search(text, FIRST_PAGE)
+	else: index()
 
 
 @plugin.route('/show_image/<url>')
@@ -77,9 +77,9 @@ def search(query, page):
 							image = result['image'],
 							plot = result['plot'])
 	if int(page) > 1:
-		utils.createFolder(search, utils.localStr(32007), [query, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
+		utils.createFolder(search, utils.localStr(32007), [query, int(page) - 1], utils.previous_page_img, "", utils.previous_page_img)
 	if len(results) > 0:
-		utils.createFolder(search, utils.localStr(32006), [query, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
+		utils.createFolder(search, utils.localStr(32006), [query, int(page) + 1], utils.next_page_img, "", utils.next_page_img)
 	utils.endDirectory(cache=True)
 
 @plugin.route('/popular/<type>/<page>')
@@ -92,9 +92,9 @@ def popular(type, page):
 							image = result['image'],
 							plot = result['plot'])
 	if int(page) > 1:
-		utils.createFolder(popular, utils.localStr(32007), [type, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
+		utils.createFolder(popular, utils.localStr(32007), [type, int(page) - 1], utils.previous_page_img, "", utils.previous_page_img)
 	if len(results) > 0:
-		utils.createFolder(popular, utils.localStr(32006), [type, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
+		utils.createFolder(popular, utils.localStr(32006), [type, int(page) + 1], utils.next_page_img, "", utils.next_page_img)
 	utils.endDirectory(cache=True)
 
 @plugin.route('/specific_keyword/<type>/<keyword>/<page>')
@@ -107,9 +107,9 @@ def specific_keyword(type, keyword, page):
 							image = result['image'],
 							plot = result['plot'])
 	if int(page) > 1:
-		utils.createFolder(specific_keyword, utils.localStr(32007), [type, keyword, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
+		utils.createFolder(specific_keyword, utils.localStr(32007), [type, keyword, int(page) - 1], utils.previous_page_img, "", utils.previous_page_img)
 	if len(results) > 0:
-		utils.createFolder(specific_keyword, utils.localStr(32006), [type, keyword, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
+		utils.createFolder(specific_keyword, utils.localStr(32006), [type, keyword, int(page) + 1], utils.next_page_img, "", utils.next_page_img)
 	utils.endDirectory(cache=True)
 
 @plugin.route('/chapters/<provider_name>/<url>/<page>')
@@ -123,11 +123,11 @@ def list_chapters(provider_name, url, page):
 							image = r['image'],
 							thumb = r['image'])
 	if int(page) > 1:
-		utils.createFolder(list_chapters, utils.localStr(32007), [provider_name, url, int(page) - 1], 'previouspage.png', "", 'previouspage.png')
+		utils.createFolder(list_chapters, utils.localStr(32007), [provider_name, url, int(page) - 1], utils.previous_page_img, "", utils.previous_page_img)
 	
 	pagination = providers.has_pagination(providers.provider_by_name(provider_name)['chapters']['request'])
 	if len(results) > 0 and pagination:
-		utils.createFolder(list_chapters, utils.localStr(32006), [provider_name, url, int(page) + 1], 'nextpage.png', "", 'nextpage.png')
+		utils.createFolder(list_chapters, utils.localStr(32006), [provider_name, url, int(page) + 1], utils.next_page_img, "", utils.next_page_img)
 
 	utils.endDirectory()
 
@@ -140,15 +140,6 @@ def list_pages(provider, url):
 		thumb = 'icon.png'
 		thumb = r['link']
 		utils.createItem(r['link'], r['title'], thumb)
-		
-		#li = ListItem(r['title'])
-		#li.setProperty('IsPlayable', 'true')
-		#li.setInfo('pictures', {'title': label})
-		#li.setArt({
-      	#	"thumb":r['link'],
-        #	#"fanart": GLOBAL_FANART
-        #})
-		#addDirectoryItem(plugin.handle, r['link'], li)
 	utils.endDirectory()
 
 if __name__ == '__main__':

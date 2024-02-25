@@ -3,11 +3,16 @@
 
 from resources.lib import routing
 import base64
+import os
 
 from kodi_six import xbmc, xbmcgui, xbmcplugin, xbmcaddon, xbmcvfs
 from xbmcgui import ListItem
 from xbmcplugin import addDirectoryItem, endOfDirectory
 
+try:
+    from xbmcvfs import translatePath
+except ImportError:
+    from xbmc import translatePath
 
 import sys
 if sys.version_info[0] == 2:
@@ -26,9 +31,35 @@ profile = addon.getAddonInfo('profile')
 
 icon_img = 'icon.png'
 fanart_img = 'fanart.png'
+previous_page_img = 'previouspage.png'
+next_page_img = 'nextpage.png'
+
+last_query_file = 'last_query.txt'
+addon_data = 'special://home/userdata/addon_data/plugin.image.k-viewer'
+last_query_location = translatePath(os.path.join(addon_data, last_query_file))
+
+if not os.path.exists(translatePath(addon_data)):
+	os.makedirs(translatePath(addon_data)) # create addon data folder if not exists
 
 def localStr(id):
 	return addon.getLocalizedString(id)
+
+def read_file(filename):
+	with open(filename, 'r') as f:
+		return f.read()
+
+def write_file(filename, content):
+	with open(filename, 'w') as f:
+		f.write(content)
+
+def read_query():
+	if not os.path.exists(last_query_location):
+		return ''
+	else:
+		return read_file(last_query_location)
+
+def save_query(query):
+	write_file(last_query_location, query)
 
 def base64_encode_url(value):
     encoded = str(base64.b64encode(bytes(value, "utf-8")), 'utf-8')
@@ -167,6 +198,7 @@ def createItem(url, label, image, **kwargs):
 	#})
 	li.setArt({
 		'thumb': image,
+		#"fanart": GLOBAL_FANART
 	})
 	#li.setProperty("fanart_image", kwargs['fanart'])
 	
