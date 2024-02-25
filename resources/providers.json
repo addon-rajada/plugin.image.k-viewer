@@ -448,14 +448,16 @@
 
 	{
 		"name": "mangadex",
-		"lang": "pt-BR",
+		"lang": "en",
 		"type": "manga",
-		"priority": 0,
-		"color": "ff800080",
+		"priority": 1,
+		"color": "ff61311d", 
 		"search": {
 			"request": {
-				"url": "https://api.mangadex.org/manga?title={query}&limit=10&includes[]=cover_art",
-				"type": "get"
+				"url": "https://api.mangadex.org/manga?title={query}&limit=10&includes[]=cover_art&offset={page}",
+				"type": "get",
+				"pagination": "true",
+				"page_multiplier": "10 * (int(page) - 1)"
 			},
 			"type": "json",
 			"rows": "['data']",
@@ -474,7 +476,7 @@
 			"type": "json",
 			"rows": "['data']",
 			"title": "['attributes']['title']",
-			"mutate_title": "'%s (volume %s - chapter %s)' % ({title}, resp.json()['data']['attributes']['volume'], resp.json()['data']['attributes']['chapter'])",
+			"mutate_title": "'%s (volume %s - chapter %s)' % ({title}, item['attributes']['volume'], item['attributes']['chapter'])",
 			"link": "['id']",
 			"mutate_link": "'https://api.mangadex.org/at-home/server/%s' % {link}",
 			"reverse": "false"
@@ -486,7 +488,7 @@
 			"type": "json",
 			"rows": "['chapter']['dataSaver']",
 			"title": "",
-			"mutate_title": "'{title}'.split('-')[0]",
+			"mutate_title": "{title}.split('-')[0]",
 			"link": "",
 			"mutate_link": "resp.json()['baseUrl'] + '/data-saver/' + resp.json()['chapter']['hash'] + '/' + {link}",
 			"reverse": "false"

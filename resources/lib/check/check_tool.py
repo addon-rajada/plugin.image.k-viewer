@@ -61,6 +61,7 @@ def parser_type(parser_obj):
 		return 'html'
 
 def do_request(type, url, timeout = 5, headers = {}, depth = 0):
+	print(type, 'request to', url)
 	try:
 		if type == 'get':
 			resp = requests.get(url, timeout=timeout, headers=headers)
@@ -111,7 +112,7 @@ def json_process(resp, provider, req_obj):
 			if any(w in title for w in provider[req_obj]['exclude_title_with_words'].split('|')):
 				continue
 		if 'mutate_title' in provider[req_obj]:
-			title = eval(provider[req_obj]['mutate_title'].replace('{title}', title))
+			title = eval(provider[req_obj]['mutate_title'].replace('{title}', repr(title)))
 		title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
 		# process link
 		try: link = eval("%s%s" % ('item', provider[req_obj]['link']))
@@ -310,20 +311,31 @@ def do_list_pages(provider, url):
 	return result
 
 
+def get_arg(arg, default):
+	opts = [opt for opt in sys.argv[1:] if opt.startswith("-")]
+	args = [arg for arg in sys.argv[1:] if not arg.startswith("-")]
+	all = zip(opts, args)
+	for i in all:
+		if i[0] == arg:
+			return i[1]
+	if default == 'exit_if_missing':
+		print('Missing', arg, 'flag')
+		exit()
+	return default
 
 if __name__ == '__main__':
 
 	# args
 	print(sys.argv)
-	provider_name = sys.argv[1]
-	keyword = sys.argv[2]
-	query = ''
-	if keyword == 'search':
-		query = quote(sys.argv[3])
+	provider_name = get_arg('-n', 'exit_if_missing')
+	keyword = get_arg('-k', 'exit_if_missing')
+	query = quote(get_arg('-q', ''))
+	result_page = get_arg('-pr', 1)
+	chapter_page = get_arg('-pc', 1)
 
 	# results
 	provider = provider_by_name(provider_name)
-	results = process_request(provider, 1, keyword, query)
+	results = process_request(provider, result_page, keyword, query)
 	print('#'*50)
 	for r in results:
 		print(r['title'])
@@ -334,7 +346,7 @@ if __name__ == '__main__':
 	# chapters
 	check_chap = input('Want to check chapters from first result? [Y][n] ')
 	if check_chap == 'Y':
-		chapters = do_list_chapters(provider_name, results[0]['link'], 1)
+		chapters = do_list_chapters(provider_name, results[0]['link'], chapter_page)
 		print('#'*50)
 		print('Total chapters', len(chapters))
 		print('Showing first 5 chapters')

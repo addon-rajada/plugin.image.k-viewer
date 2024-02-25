@@ -117,7 +117,7 @@ def json_process(resp, provider, req_obj):
 			if any(w in title for w in provider[req_obj]['exclude_title_with_words'].split('|')):
 				continue
 		if 'mutate_title' in provider[req_obj]:
-			title = eval(provider[req_obj]['mutate_title'].replace('{title}', title))
+			title = eval(provider[req_obj]['mutate_title'].replace('{title}', repr(title)))
 		title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
 		# process link
 		try: link = eval("%s%s" % ('item', provider[req_obj]['link']))
