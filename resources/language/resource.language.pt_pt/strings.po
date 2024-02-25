@@ -1,0 +1,78 @@
+# Kodi Media Center language file
+# Addon Name: K-Viewer
+# Addon id: plugin.image.k-viewer
+# Addon Provider: gbchr
+
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: This is a comment
+
+msgctxt "#32000"
+msgid "Search"
+msgstr "Pesquisar"
+
+msgctxt "#32001"
+msgid "Popular Comics"
+msgstr "Quadrinhos Populares"
+
+msgctxt "#32002"
+msgid "Popular Mangas"
+msgstr "Mangás Populares"
+
+msgctxt "#32003"
+msgid "Recommended"
+msgstr "Recomendados"
+
+msgctxt "#32004"
+msgid "Marvel Comics"
+msgstr "Quadrinhos da Marvel"
+
+msgctxt "#32005"
+msgid "DC Comics"
+msgstr "Quadrinhos da DC"
+
+msgctxt "#32006"
+msgid "Next page"
+msgstr "Próxima página"
+
+msgctxt "#32007"
+msgid "Previous page"
+msgstr "Página anterior"
+
+msgctxt "#32008"
+msgid "[COLOR gold]- Comics -[/COLOR]"
+msgstr "[COLOR gold]- Quadrinhos -[/COLOR]"
+
+msgctxt "#32009"
+msgid "[COLOR gold]- Mangas -[/COLOR]"
+msgstr "[COLOR gold]- Mangás -[/COLOR]"
+
+msgctxt "#32010"
+msgid "Dark Horse Comics"
+msgstr "Quadrinhos da Dark Horse"
+
+msgctxt "#32011"
+msgid "Spider-Man"
+msgstr ""
+
+msgctxt "#32012"
+msgid "The New 52"
+msgstr ""
+
+msgctxt "#32013"
+msgid "Captain America"
+msgstr ""
+
+msgctxt "#32014"
+msgid "Avengers"
+msgstr ""
+
+msgctxt "#32015"
+msgid "Justice League"
+msgstr ""
