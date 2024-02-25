@@ -307,6 +307,66 @@
 			"link": "item('img', attribute='data-original', order=1)",
 			"reverse": "false"
 		}
+	},
+
+
+
+	{
+		"name": "mangapill",
+		"lang": "en",
+		"type": "manga",
+		"priority": 1,
+		"color": "ff536878",
+		"enabled": "false",
+		"search": {
+			"request": {
+				"url": "https://mangapill.com/search?q={query}&type=&status=",
+				"type": "get"
+			},
+			"rows": "find_all('a', ('class','relative'))",
+			"title": "item.attr['href']",
+			"mutate_title": "'{title}'.split('/')[-1].replace('-',' ')",
+			"image": "item('img', attribute='data-src', order=1)",
+			"link": "'https://mangapill.com' + item.attr['href']"
+		},
+		"popular": {
+			"request": {
+				"url": "https://mangapill.com/",
+				"type": "get"
+			},
+			"rows": "find_once('div', ('class','lg:grid-cols-5'), order=2).find_all('a', ('class','relative'))",
+			"title": "item.attr['href']",
+			"mutate_title": "'{title}'.split('/')[-1].replace('-',' ')",
+			"image": "item('img', attribute='data-src', order=1)",
+			"link": "'https://mangapill.com' + item.attr['href']"
+		},
+		"chapters": {
+			"request": {
+				"type": "get"
+			},
+			"rows": "find_all('a', ('class','border'))",
+			"title": "item.text()",
+			"plot": "",
+			"link": "'https://mangapill.com' + item.attr['href']",
+			"reverse": "true"
+		},
+		"pages": {
+			"request": {
+				"type": "get",
+				"headers": {
+					"referer": "https://mangapill.com/",
+					"sec-fetch-mode": "no-cors",
+					"sec-fetch-site": "cross-site",
+					"user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
+				}
+			},
+			"rows": "find_all('chapter-page')",
+			"title": "item.find_once('div', ('class','text-sm')).text()",
+			"link": "item('img', attribute='data-src', order=1)",
+			"reverse": "false"
+		}
 	}
+
+	
 
 ]

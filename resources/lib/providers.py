@@ -48,18 +48,28 @@ def has_pagination(request_obj):
 		elif request_obj['pagination'] == 'true':
 			return True
 
+def is_enabled(provider_obj):
+	if 'enabled' in provider_obj:
+		if provider_obj['enabled'] == "true": return True
+		elif provider_obj['enabled'] == "false": return False
+	else:
+		return True # default is enabled
+
 def parser_type(parser_obj):
 	if 'type' in parser_obj:
 		return parser_obj['type']
 	else:
 		return 'html'
 
-def do_request(type, url, timeout = 5):
+def do_request(type, url, timeout = 5, headers = {}):
+	#s = requests.Session()
+	#s.headers = {}
 	try:
 		if type == 'get':
-			resp = requests.get(url, timeout=timeout)
+			resp = requests.get(url, timeout=timeout, headers=headers)
+			#resp = s.get(url, timeout=timeout, headers=headers)
 		elif type == 'post':
-			resp = requests.post(url, timeout=timeout)
+			resp = requests.post(url, timeout=timeout, headers=headers)
 		return resp
 
 	except requests.exceptions.Timeout:
@@ -142,6 +152,8 @@ def process_request(provider, page, req_obj, query = ''):
 			# process title
 			try: title = eval(provider[req_obj]['title'])
 			except: title = ''
+			if 'mutate_title' in provider[req_obj]:
+				title = eval(provider[req_obj]['mutate_title'].replace('{title}', title))
 			title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
 
 			# process link
@@ -179,8 +191,8 @@ def do_list_chapters(provider, url, page):
 	for item in rows:
 		# process title
 		title = try_eval(item, p['chapters'], 'title')
-		#if 'mutate_title' in p['chapters']:
-		#	title = eval(p['chapters']['mutate_title'].replace('{title}', title))
+		if 'mutate_title' in p['chapters']:
+			title = eval(p['chapters']['mutate_title'].replace('{title}', title))
 		title = try_eval(item, p['chapters'], 'mutate_title', title, "\"{value}\".replace('{title}', default_return)")
 		# process link
 		link = eval(p['chapters']['link'])
@@ -220,7 +232,10 @@ def do_list_pages(provider, url):
 	url = utils.base64_decode_url(url)
 	p = provider_by_name(provider)
 	# request
-	resp = do_request(p['chapters']['request']['type'], url)
+	custom_headers = {}
+	if 'headers' in p['pages']['request']:
+		custom_headers = p['pages']['request']['headers']
+	resp = do_request(p['pages']['request']['type'], url, headers = custom_headers)
 	if resp == None: return result
 	# process rows
 	dom = Html().feed(resp.text)
@@ -265,7 +280,7 @@ def do_list_pages(provider, url):
 def by_keyword(type, keyword, page):
 	results = []
 
-	providers = [p for p in all_providers if p['type'] == type and keyword in p]
+	providers = [p for p in all_providers if (p['type'] == type and keyword in p and is_enabled(p))]
 	num_providers = len(providers)
 	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
 
@@ -280,7 +295,7 @@ def by_keyword(type, keyword, page):
 def popular(type, page):
 	results = []
 
-	providers = [p for p in all_providers if p['type'] == type and 'popular' in p]
+	providers = [p for p in all_providers if (p['type'] == type and 'popular' in p and is_enabled(p))]
 	num_providers = len(providers)
 	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
 
@@ -295,10 +310,11 @@ def popular(type, page):
 def search(query, page):
 	results = []
 
-	num_providers = len(all_providers)
+	providers = [p for p in all_providers if is_enabled(p)]
+	num_providers = len(providers)
 	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
 	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(process_request, provider = x, page = page, req_obj = 'search', query = query) for x in all_providers]
+		futures = [executor.submit(process_request, provider = x, page = page, req_obj = 'search', query = query) for x in providers]
 		for f in as_completed(futures):
 			pool_result = f.result()
 			results.extend(pool_result)
