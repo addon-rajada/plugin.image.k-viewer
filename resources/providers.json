@@ -86,6 +86,7 @@
 			},
 			"rows": "dom.find_once('ul', ('class', 'episodios')).find_all('li')",
 			"title": "item('a', order=1)",
+			"image": "dom.find_once('div', ('class','poster')).find_once('img').attr['src']",
 			"plot": "item('a', order=1).split('/')[-1]",
 			"link": "item('a', attribute='href', order=1)",
 			"reverse": "true"

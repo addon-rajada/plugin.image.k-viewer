@@ -1,14 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2024 gbchr
 
-import requests
-import sys
-import os
 from resources.lib import providers, routing, utils
-
-from kodi_six import xbmc, xbmcgui, xbmcplugin, xbmcaddon, xbmcvfs
-from xbmcgui import ListItem
-from xbmcplugin import addDirectoryItem, endOfDirectory
 
 FIRST_PAGE = 1
 
@@ -46,19 +39,12 @@ def recommended_mangas():
 
 @plugin.route('/input_query')
 def input_query():
-	kb = xbmc.Keyboard(utils.read_query(), utils.localStr(32000))
-	kb.doModal()
-	if kb.isConfirmed():
-		text = kb.getText()
+	text = utils.keyboard(utils.read_query(), utils.localStr(32000))
+	if text != None:
 		utils.save_query(text)
 		search(text, FIRST_PAGE)
 	else: index()
 
-
-@plugin.route('/show_image/<url>')
-def show_image(url):
-	print('show image', url)
-	utils.play(utils.base64_decode_url(url))
 
 @plugin.route('/search/<query>/<page>')
 def search(query, page):
@@ -127,10 +113,7 @@ def list_chapters(provider_name, url, page):
 @plugin.route('/pages/<provider>/<url>')
 def list_pages(provider, url):
 	for r in providers.do_list_pages(provider, url):
-		#img_url = plugin.url_for(show_image, r['link_b64'])
 		link = utils.base64_decode_url(r['link'])
-		print('pageurl', link)
-		#utils.createItem(img_url, r['title'], r['link'])
 		utils.createItem(link, r['title'], link)
 	utils.endDirectory()
 

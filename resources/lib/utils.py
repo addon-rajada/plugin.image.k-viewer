@@ -70,6 +70,12 @@ def base64_decode_url(data):
     value += '=' * (len(value) % 4)
     return str(base64.b64decode(value), 'utf-8') # urlsafe_
 
+def keyboard(placeholder, title):
+	kb = xbmc.Keyboard(placeholder, title)
+	kb.doModal()
+	if kb.isConfirmed(): return kb.getText()
+	else: return None
+
 def bold(text):
 	# return bold text
 	return '[B]' + text + '[/B]'
@@ -149,7 +155,6 @@ def elementum_url(type, title, year = '', id = ''):
 	return url
 
 def play(url):
-	print('play', url)
 	# play url
 	xbmcplugin.setResolvedUrl(plugin.handle, True, xbmcgui.ListItem(path=url))
 	#xbmc.executebuiltin("PlayMedia(%s)" % url)
