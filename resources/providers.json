@@ -3,7 +3,7 @@
 		"name": "comicextra",
 		"lang": "en",
 		"type": "hq",
-		"priority": 2,
+		"priority": 3,
 		"color": "ffffcf40",
 		"search": {
 			"request": {
@@ -315,7 +315,7 @@
 		"name": "mangapill",
 		"lang": "en",
 		"type": "manga",
-		"priority": 1,
+		"priority": 2,
 		"color": "ff536878",
 		"enabled": "true",
 		"search": {

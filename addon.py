@@ -33,33 +33,14 @@ def index():
 
 @plugin.route('/recommended_comics')
 def recommended_comics():
-	items = [
-			'Asterix',
-			'Batman',
-			'Conan',
-			'Jericho',
-			'Superman',
-			'The Boys',
-			'The New 52',
-			'The Walking Dead',
-			'Watchmen',
-			'X-Men',
-			]
-	for i in items:
+	for i in sorted(utils.localStr(32011).split('|')):
 		utils.createFolder(search, i, [i, FIRST_PAGE])
 	utils.endDirectory()
 
 
 @plugin.route('/recommended_mangas')
 def recommended_mangas():
-	items = [
-			'Akira',
-			'Death Note',
-			'Dragon Ball',
-			'Naruto',
-			'One Piece'
-			]
-	for i in items:
+	for i in sorted(utils.localStr(32012).split('|')):
 		utils.createFolder(search, i, [i, FIRST_PAGE])
 	utils.endDirectory()
 

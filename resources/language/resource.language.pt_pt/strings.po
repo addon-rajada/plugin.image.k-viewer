@@ -58,21 +58,9 @@ msgid "Dark Horse Comics"
 msgstr "Quadrinhos da Dark Horse"
 
 msgctxt "#32011"
-msgid "Spider-Man"
-msgstr ""
+msgid "Asterix|Avengers|Batman|Captain America|Conan|Jericho|Justice League|Spider-Man|Superman|The Boys|The New 52|The Walking Dead|Watchmen|X-Men"
+msgstr "Asterix|Vingadores|Batman|Capitão América|Conan|Jericho|Liga da Justiça|Homem-Aranha|Superman|The Boys|Os Novos 52|The Walking Dead|Watchmen|X-Men"
 
 msgctxt "#32012"
-msgid "The New 52"
-msgstr ""
-
-msgctxt "#32013"
-msgid "Captain America"
-msgstr ""
-
-msgctxt "#32014"
-msgid "Avengers"
-msgstr ""
-
-msgctxt "#32015"
-msgid "Justice League"
-msgstr ""
+msgid "Akira|Berserk|Death Note|Dragon Ball|Naruto|One Piece"
+msgstr "Akira|Berserk|Death Note|Dragon Ball|Naruto|One Piece"
