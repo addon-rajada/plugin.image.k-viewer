@@ -70,10 +70,10 @@ def do_request(type, url, timeout = 5, headers = {}, depth = 0):
 		return resp
 	except requests.exceptions.Timeout:
 		print('timeout error. depth:', depth)
-		if depth == 2: return None # 2 retries
+		if depth == 1: return None # 1 retries
 		else:
 			depth += 1
-			return do_request(type, url, timeout, headers, depth)
+			return do_request(type, url, 2*timeout, headers, depth)
 	except requests.exceptions.ConnectionError:
 		print('connection error. depth:', depth)
 		if depth == 3: return None # 3 retries
@@ -155,7 +155,7 @@ def process_request(provider, page, req_obj, query = ''):
 	# html parser
 	elif parser_type(provider[req_obj]) == 'html':
 		dom = Html().feed(resp.text)
-		try: rows = eval('dom.' + provider[req_obj]['rows'])
+		try: rows = eval(provider[req_obj]['rows'])
 		except: rows = []
 
 		for item in rows:
@@ -194,7 +194,7 @@ def do_list_chapters(provider, url, page):
 	p = provider_by_name(provider)
 	# process page
 	if 'page_multiplier' in p['chapters']['request']:
-		page = eval(provider['chapters']['request']['page_multiplier'])
+		page = eval(p['chapters']['request']['page_multiplier'])
 	url = url.replace('{page}', str(page))
 	# request
 	resp = do_request(p['chapters']['request']['type'], url)
@@ -208,7 +208,8 @@ def do_list_chapters(provider, url, page):
 	elif parser_type(p['chapters']) == 'html':
 		# process rows
 		dom = Html().feed(resp.text)
-		rows = eval('dom.' + p['chapters']['rows'])
+		try: rows = eval(p['chapters']['rows'])
+		except: rows = []
 		for item in rows:
 			# process title
 			title = try_eval(item, p['chapters'], 'title')
@@ -273,21 +274,27 @@ def do_list_pages(provider, url):
 	elif parser_type(p['pages']) == 'html':
 		# process rows
 		dom = Html().feed(resp.text)
-		rows = eval('dom.' + p['pages']['rows'])
+		try: rows = eval(p['pages']['rows'])
+		except: rows = []
 		for item in rows:
 			try:
 				#if p['pages']['type'] == 'tag_attrib_from_rows':
 					#attrs = ET.fromstring(str(item)).attrib
 					#print(item, attrs)
 				# process title
-				#title = attrs[p['pages']['title']]
-				title = try_eval(item, p['pages'], 'title')
+				try: title = eval(p['pages']['title'])
+				except: title = ''
 				if 'mutate_title' in p['pages']:
-					title = eval(p['pages']['mutate_title'].replace('{title}', title))
+					try: title = eval(p['pages']['mutate_title'].replace('{title}', title))
+					except: pass
 				# process link
-				link = try_eval(item, p['pages'], 'link')
-				link = try_eval(item, p['pages'], 'mutate_link', link, "\"{value}\".replace('{link}', default_return)")
-				link = link.replace('http://','https://') # force https
+				try: link = eval(p['pages']['link'])
+				except: link = ''
+				if 'mutate_link' in p['pages']:
+					try: link = eval(p['pages']['mutate_link'].replace('{link}', link))
+					except: pass
+				try: link = link.replace('http://','https://') # force https
+				except: pass
 				# new result
 				result.append({
 					'title': unquote(title),
@@ -301,10 +308,11 @@ def do_list_pages(provider, url):
 	num_pages = len(result)
 	workers = num_pages if (num_pages > 0 and num_pages <= 16) else 16
 	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(fix_blogspot_url, index = result.index(x), url = x['link']) for x in result]
+		futures = [executor.submit(fix_blogspot_url, index = result.index(x), url = utils.base64_decode_url(x['link'])) for x in result]
 		for f in as_completed(futures):
 			index, new_url = f.result()
-			result[index]['link'] = new_url
+			#print('blogspot fix - before (%s) after (%s)' % (utils.base64_decode_url(result[index]['link']), new_url))
+			result[index]['link'] = utils.base64_encode_url(new_url)
 	# reverse
 	if 'reverse' in p['pages'] and p['pages']['reverse'] == 'true':
 		result.reverse()

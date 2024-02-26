@@ -11,7 +11,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_all('div', ('class','cartoon-box'))",	
+			"rows": "dom.find_all('div', ('class','cartoon-box'))",	
 			"title": "item('a', order=2)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "'\\n'.join(x.strip() for x in item('div', order=4).split('\\n'))",
@@ -23,7 +23,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_all('div', ('class','cartoon-box'))",	
+			"rows": "dom.find_all('div', ('class','cartoon-box'))",	
 			"title": "item('a', order=2)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "item('div', order=4)",
@@ -33,7 +33,7 @@
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_once('table', ('class', 'table')).find_all('tr')",
+			"rows": "dom.find_once('table', ('class', 'table')).find_all('tr')",
 			"title": "item('a', order=1)",
 			"plot": "'\\n'.join(x.strip() for x in item('td', order=2).split('\\n'))",
 			"link": "item('a', attribute='href', order=1) + '/full'",
@@ -43,7 +43,7 @@
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_once('div', ('class', 'chapter-container')).find_all('img')",
+			"rows": "dom.find_once('div', ('class', 'chapter-container')).find_all('img')",
 			"title": "item.attr['alt']",
 			"link": "item.attr['src']",
 			"reverse": "true"
@@ -63,7 +63,7 @@
 				"url": "https://mangaonline.biz/search/{query}",
 				"type": "get"
 			},
-			"rows": "find_all('div', ('id','archive-content'))",	
+			"rows": "dom.find_all('div', ('id','archive-content'))",	
 			"title": "item('a', order=2)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "item('div', order=2)",
@@ -74,7 +74,7 @@
 				"url": "https://mangaonline.biz/mais-vistos/",
 				"type": "get"
 			},
-			"rows": "find_all('div', ('id','archive-content'))",
+			"rows": "dom.find_all('div', ('id','archive-content'))",
 			"title": "item('a', order=2)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "item('div', order=2)",
@@ -84,7 +84,7 @@
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_once('ul', ('class', 'episodios')).find_all('li')",
+			"rows": "dom.find_once('ul', ('class', 'episodios')).find_all('li')",
 			"title": "item('a', order=1)",
 			"plot": "item('a', order=1).split('/')[-1]",
 			"link": "item('a', attribute='href', order=1)",
@@ -94,7 +94,7 @@
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_once('div', ('class', 'content')).find_all('img', ('loading', 'lazy'))",
+			"rows": "dom.find_once('div', ('class', 'content')).find_all('img', ('loading', 'lazy'))",
 			"title": "item.attr['src']",
 			"mutate_title": "'{title}'.split('/')[-1]",
 			"link": "item.attr['src']",
@@ -115,7 +115,7 @@
 				"url": "https://mangananquim.com/?s={query}&post_type=wp-manga",
 				"type": "get"
 			},
-			"rows": "find_once('div', ('class','c-tabs-item')).find_all('div', ('class','c-tabs-item__content'))",
+			"rows": "dom.find_once('div', ('class','c-tabs-item')).find_all('div', ('class','c-tabs-item__content'))",
 			"title": "item('a', attribute='title', order=1)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "",
@@ -127,7 +127,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('role','tabpanel')).find_all('div', ('class','page-item-detail'))",
+			"rows": "dom.find_once('div', ('role','tabpanel')).find_all('div', ('class','page-item-detail'))",
 			"title": "item('a', attribute='title', order=1)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "item('a', select=('class','btn-link'), order=1)",
@@ -137,7 +137,7 @@
 			"request": {
 				"type": "post"
 			},
-			"rows": "find_all('li', ('class','wp-manga-chapter'))",
+			"rows": "dom.find_all('li', ('class','wp-manga-chapter'))",
 			"title": "item('a', order=1)",
 			"plot": "'adicionado em ' + item('i', order=1)",
 			"link": "item('a', attribute='href', order=1) + '?style=list'",
@@ -147,7 +147,7 @@
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_once('div', ('class', 'reading-content')).find_all('img', ('class', 'wp-manga-chapter-img'))",
+			"rows": "dom.find_once('div', ('class', 'reading-content')).find_all('img', ('class', 'wp-manga-chapter-img'))",
 			"title": "item.attr['id']",
 			"link": "item.attr['src']",
 			"reverse": "false"
@@ -199,7 +199,7 @@
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_once('div', ('class', 'post-body')).find_all('a', ('target','_blank'))",
+			"rows": "dom.find_once('div', ('class', 'post-body')).find_all('a', ('target','_blank'))",
 			"title": "item('img', attribute='title', order=1)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "",
@@ -210,7 +210,7 @@
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_once('div', ('class', 'post')).find_all('img')",
+			"rows": "dom.find_once('div', ('class', 'post')).find_all('img')",
 			"title": "item.attr['src']",
 			"mutate_title": "'{title}'.split('/')[-1]",
 			"link": "item.attr['src']",
@@ -233,7 +233,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('class','row')).find_all('div', ('class','item'))",	
+			"rows": "dom.find_once('div', ('class','row')).find_all('div', ('class','item'))",	
 			"title": "item('a', attribute='title', order=1)",
 			"image": "item('img', attribute='data-original', order=1)",
 			"plot": "str(item.find('div', ('class','box_test')))",
@@ -245,7 +245,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('class','row')).find_all('div', ('class','item'))",	
+			"rows": "dom.find_once('div', ('class','row')).find_all('div', ('class','item'))",	
 			"title": "item('a', attribute='title', order=1)",
 			"image": "item('img', attribute='data-original', order=1)",
 			"plot": "item.find_once('div', ('class','box_test'))",
@@ -257,7 +257,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('class','items')).find_once('div', ('class','row')).find_all('div', ('class','item'))",
+			"rows": "dom.find_once('div', ('class','items')).find_once('div', ('class','row')).find_all('div', ('class','item'))",
 			"title": "item('a', attribute='title', order=1)",
 			"image": "item('img', attribute='data-original', order=1)",
 			"plot": "item.find_once('div', ('class','box_test'))",
@@ -269,7 +269,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('class','items')).find_once('div', ('class','row')).find_all('div', ('class','item'))",
+			"rows": "dom.find_once('div', ('class','items')).find_once('div', ('class','row')).find_all('div', ('class','item'))",
 			"title": "item('a', attribute='title', order=1)",
 			"image": "item('img', attribute='data-original', order=1)",
 			"plot": "item.find_once('div', ('class','box_test'))",
@@ -281,7 +281,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('class','items')).find_once('div', ('class','row')).find_all('div', ('class','item'))",
+			"rows": "dom.find_once('div', ('class','items')).find_once('div', ('class','row')).find_all('div', ('class','item'))",
 			"title": "item('a', attribute='title', order=1)",
 			"image": "item('img', attribute='data-original', order=1)",
 			"plot": "item.find_once('div', ('class','box_test'))",
@@ -292,7 +292,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('class', 'list-chapter')).find_once('nav').find_once('ul').find_all('li', ('class','row'))",
+			"rows": "dom.find_once('div', ('class', 'list-chapter')).find_once('nav').find_once('ul').find_all('li', ('class','row'))",
 			"title": "item('a', order=1)",
 			"plot": "",
 			"link": "item('a', attribute='href', order=1) + '/all'",
@@ -302,7 +302,7 @@
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_all('div', ('class','page-chapter'))",
+			"rows": "dom.find_all('div', ('class','page-chapter'))",
 			"title": "item('img', attribute='alt', order=1)",
 			"link": "item('img', attribute='data-original', order=1)",
 			"reverse": "false"
@@ -317,16 +317,16 @@
 		"type": "manga",
 		"priority": 1,
 		"color": "ff536878",
-		"enabled": "false",
+		"enabled": "true",
 		"search": {
 			"request": {
 				"url": "https://mangapill.com/search?q={query}&type=&status=",
 				"type": "get"
 			},
-			"rows": "find_all('a', ('class','relative'))",
+			"rows": "dom.find_all('a', ('class','relative'))",
 			"title": "item.attr['href']",
 			"mutate_title": "'{title}'.split('/')[-1].replace('-',' ')",
-			"image": "item('img', attribute='data-src', order=1)",
+			"image": "item('img', attribute='data-src', order=1) + '|referer=%s' % quote('https://mangapill.com/')",
 			"link": "'https://mangapill.com' + item.attr['href']"
 		},
 		"popular": {
@@ -334,17 +334,17 @@
 				"url": "https://mangapill.com/",
 				"type": "get"
 			},
-			"rows": "find_once('div', ('class','lg:grid-cols-5'), order=2).find_all('a', ('class','relative'))",
+			"rows": "dom.find_once('div', ('class','lg:grid-cols-5'), order=2).find_all('a', ('class','relative'))",
 			"title": "item.attr['href']",
 			"mutate_title": "'{title}'.split('/')[-1].replace('-',' ')",
-			"image": "item('img', attribute='data-src', order=1)",
+			"image": "item('img', attribute='data-src', order=1) + '|referer=%s' % quote('https://mangapill.com/')",
 			"link": "'https://mangapill.com' + item.attr['href']"
 		},
 		"chapters": {
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_all('a', ('class','border'))",
+			"rows": "dom.find_all('a', ('class','border'))",
 			"title": "item.text()",
 			"plot": "",
 			"link": "'https://mangapill.com' + item.attr['href']",
@@ -360,9 +360,9 @@
 					"user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
 				}
 			},
-			"rows": "find_all('chapter-page')",
+			"rows": "dom.find_all('chapter-page')",
 			"title": "item.find_once('div', ('class','text-sm')).text()",
-			"link": "item('img', attribute='data-src', order=1)",
+			"link": "item('img', attribute='data-src', order=1) + '|referer=%s' % quote('https://mangapill.com/')",
 			"reverse": "false"
 		}
 	},
@@ -381,7 +381,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('class','detailed-list')).find_all('div', ('class','dl-box'))",	
+			"rows": "dom.find_once('div', ('class','detailed-list')).find_all('div', ('class','dl-box'))",	
 			"title": "item('a', order=2)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "",
@@ -393,7 +393,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('class','eg-list')).find_all('div', ('class','eg-box'))",	
+			"rows": "dom.find_once('div', ('class','eg-list')).find_all('div', ('class','eg-box'))",	
 			"title": "item('a', order=2)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "",
@@ -405,7 +405,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('class','image-genre-list')).find_all('div', ('class','ig-grid'))",
+			"rows": "dom.find_once('div', ('class','image-genre-list')).find_all('div', ('class','ig-grid'))",
 			"title": "item('a', order=2)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "",
@@ -417,7 +417,7 @@
 				"type": "get",
 				"pagination": "true"
 			},
-			"rows": "find_once('div', ('class','image-genre-list')).find_all('div', ('class','ig-grid'))",
+			"rows": "dom.find_once('div', ('class','image-genre-list')).find_all('div', ('class','ig-grid'))",
 			"title": "item('a', order=2)",
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "",
@@ -427,7 +427,7 @@
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_once('ul', ('class', 'basic-list')).find_all('li')",
+			"rows": "dom.find_once('ul', ('class', 'basic-list')).find_all('li')",
 			"title": "item('a', order=1)",
 			"image": "dom.find_once('div', ('class', 'anime-details')).find_once('img').attr['src']",
 			"link": "item('a', attribute='href', order=1) + '/full'",
@@ -437,7 +437,7 @@
 			"request": {
 				"type": "get"
 			},
-			"rows": "find_once('div', ('class', 'chapter-container')).find_all('img')",
+			"rows": "dom.find_once('div', ('class', 'chapter-container')).find_all('img')",
 			"title": "item.attr['alt']",
 			"link": "item.attr['src']",
 			"reverse": "true"
@@ -448,13 +448,14 @@
 
 	{
 		"name": "mangadex",
-		"lang": "en",
+		"lang": "pt-BR",
 		"type": "manga",
 		"priority": 1,
-		"color": "ff61311d", 
+		"color": "ff0078ff",
+		"enabled": "true",
 		"search": {
 			"request": {
-				"url": "https://api.mangadex.org/manga?title={query}&limit=10&includes[]=cover_art&offset={page}",
+				"url": "https://api.mangadex.org/manga?title={query}&limit=10&includes[]=cover_art&offset={page}&availableTranslatedLanguage[]=pt-br",
 				"type": "get",
 				"pagination": "true",
 				"page_multiplier": "10 * (int(page) - 1)"
@@ -467,16 +468,18 @@
 			"mutate_image": "list(filter(lambda x: True if x['type'] == 'cover_art' else False, {image}))[0]['attributes']['fileName']",
 			"mutate_image2": "'https://uploads.mangadex.org/covers/%s/%s' % ({image_auxiliar}, {image})",
 			"link": "['id']",
-			"mutate_link": "'https://api.mangadex.org/chapter?manga=%s&limit=100' % {link}"
+			"mutate_link": "'https://api.mangadex.org/chapter?manga=%s&limit=100&offset={page}&translatedLanguage[]=pt-br' % {link}"
 		},
 		"chapters": {
 			"request": {
-				"type": "get"
+				"type": "get",
+				"pagination": "true",
+				"page_multiplier": "100 * (int(page) - 1)"
 			},
 			"type": "json",
 			"rows": "['data']",
 			"title": "['attributes']['title']",
-			"mutate_title": "'%s (volume %s - chapter %s)' % ({title}, item['attributes']['volume'], item['attributes']['chapter'])",
+			"mutate_title": "'%s (volume %s - capítulo %s)' % ({title}, item['attributes']['volume'], item['attributes']['chapter'])",
 			"link": "['id']",
 			"mutate_link": "'https://api.mangadex.org/at-home/server/%s' % {link}",
 			"reverse": "false"
@@ -494,6 +497,6 @@
 			"reverse": "false"
 		}
 	}
-	
+
 
 ]
