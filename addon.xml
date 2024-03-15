@@ -5,6 +5,8 @@
 		<import addon="script.module.kodi-six" />
 		<import addon="script.module.requests" />
 		<import addon="script.module.future" />
+		<import addon="script.module.pyxbmct" />
+		<import addon="script.module.pil" />
 	</requires>
 
 	<extension point="xbmc.python.pluginsource" library="addon.py">

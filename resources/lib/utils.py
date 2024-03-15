@@ -4,6 +4,7 @@
 from resources.lib import routing
 import base64
 import os
+import requests
 
 from kodi_six import xbmc, xbmcgui, xbmcplugin, xbmcaddon, xbmcvfs
 from xbmcgui import ListItem
@@ -41,16 +42,28 @@ last_query_location = translatePath(os.path.join(addon_data, last_query_file))
 if not os.path.exists(translatePath(addon_data)):
 	os.makedirs(translatePath(addon_data)) # create addon data folder if not exists
 
+def do_request(url):
+	try:
+		response = requests.get(url)
+		if response.status_code == 200:
+			return response
+		return None
+	except Exception as e:
+		return None
+
 def localStr(id):
 	return addon.getLocalizedString(id)
 
-def read_file(filename):
-	with open(filename, 'r') as f:
+def read_file(filename, mode = 'r'):
+	with open(filename, mode) as f:
 		return f.read()
 
-def write_file(filename, content):
-	with open(filename, 'w') as f:
+def write_file(filename, content, mode = 'w'):
+	with open(filename, mode) as f:
 		f.write(content)
+
+def datapath(filename):
+	return translatePath(os.path.join(addon_data, filename))
 
 def read_query():
 	if not os.path.exists(last_query_location):

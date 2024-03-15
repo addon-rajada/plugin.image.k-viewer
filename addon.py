@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (C) 2024 gbchr
 
-from resources.lib import providers, routing, utils
+from resources.lib import providers, routing, utils, windows
 
 FIRST_PAGE = 1
 
@@ -112,10 +112,14 @@ def list_chapters(provider_name, url, page):
 
 @plugin.route('/pages/<provider>/<url>')
 def list_pages(provider, url):
-	for r in providers.do_list_pages(provider, url):
-		link = utils.base64_decode_url(r['link'])
-		utils.createItem(link, r['title'], link)
-	utils.endDirectory()
+	results = providers.do_list_pages(provider, url)
+	#for r in results:
+	#	link = utils.base64_decode_url(r['link'])
+	#	utils.createItem(link, r['title'], link)
+	#utils.endDirectory()
+	window = windows.PagesWindow(title='Pages', pages=results)
+	window.doModal()
+	del window
 
 if __name__ == '__main__':
 	utils.plugin = plugin
