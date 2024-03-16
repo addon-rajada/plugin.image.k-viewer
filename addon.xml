@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.image.k-viewer" name="K-Viewer" version="0.2" provider-name="gbchr">
+<addon id="plugin.image.k-viewer" name="K-Viewer" version="0.3" provider-name="gbchr">
 	
 	<requires>
 		<import addon="script.module.kodi-six" />
@@ -16,10 +16,10 @@
 	<extension point="xbmc.addon.metadata">
 		<platform>all</platform>
 		<summary lang="pt">HQs e Mangás</summary>
-		<summary lang="en">Comics and Mangas</summary>
+		<summary lang="en_gb">Comics and Mangas</summary>
 		
-		<description lang="pt"></description>
-		<description lang="en"></description>
+		<description lang="pt">HQs e Mangás</description>
+		<description lang="en_gb">Comics and Mangas</description>
 		
 		<license>GNU General Public License, v2</license>
 		<source>https://github.com/addon-rajada/plugin.image.k-viewer</source>
