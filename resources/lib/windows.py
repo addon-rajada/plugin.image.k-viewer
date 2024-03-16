@@ -17,7 +17,8 @@ controlInfo = { # row, column, rowspan, columnspan, pad_x, pad_y
 	
 	'image': [0, 2, 10, 6],
 	'fade_label': [0, 0, 1, 2],
-	'list': [1, 0, 9, 2],
+	'sector_label': [1, 0, 1, 2, 5, 0],
+	'list': [2, 0, 8, 2],
 	
 	'next_button': [1, 8, 1, 2],
 	'previous_button': [2, 8, 1, 2],
@@ -36,6 +37,17 @@ MODE_STRETCH = 0
 MODE_SCALE_UP = 1
 MODE_SCALE_DOWN = 2
 
+ACTION_0 = 58
+ACTION_1 = 59
+ACTION_2 = 60
+ACTION_3 = 61
+ACTION_4 = 62
+ACTION_5 = 63
+ACTION_6 = 64
+ACTION_7 = 65
+ACTION_8 = 66
+ACTION_9 = 67
+
 class PagesWindow(pyxbmct.AddonDialogWindow):
 
 	def __init__(self, title = '', pages = []):
@@ -53,6 +65,7 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 				'url': utils.base64_decode_url(item['link'])
 			})
 		self.current_page = 0
+		# auxiliar variables
 		self.image_mode = MODE_SCALE_DOWN
 		self.move_index = 0 # page top
 		self.fade_label = None
@@ -60,7 +73,7 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		self.original_uuid = None # use UUID instead fixed/image name because Kodi cache behaviour
 		self.rotated_uuid = None
 		self.cut_uuid = None
-		self.update_page(self.current_page)
+		self.sector_label = None
 		# list
 		self.list = pyxbmct.List()
 		self.placeControl(self.list, *controlInfo['list'])
@@ -72,48 +85,121 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		self.connect(self.button, self.close)
 		self.connect(pyxbmct.ACTION_PREVIOUS_MENU, self.close)
 		self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
+		self.connect(ACTION_0, self.close)
 		# image mode buttons
-		btn_stretch = pyxbmct.Button('Stretch')
-		btn_up = pyxbmct.Button('Scale Up')
-		btn_down = pyxbmct.Button('Scale Down')
-		self.placeControl(btn_stretch, *controlInfo['stretch_button'])
-		self.placeControl(btn_up, *controlInfo['scale_up_button'])
-		self.placeControl(btn_down, *controlInfo['scale_down_button'])
-		self.connect(btn_stretch, lambda: self.set_image_mode(MODE_STRETCH))
-		self.connect(btn_up, lambda: self.set_image_mode(MODE_SCALE_UP))
-		self.connect(btn_down, lambda: self.set_image_mode(MODE_SCALE_DOWN))
+		self.btn_stretch = pyxbmct.Button('Stretch')
+		self.btn_up = pyxbmct.Button('Scale Up')
+		self.btn_down = pyxbmct.Button('Scale Down')
+		self.placeControl(self.btn_stretch, *controlInfo['stretch_button'])
+		self.placeControl(self.btn_up, *controlInfo['scale_up_button'])
+		self.placeControl(self.btn_down, *controlInfo['scale_down_button'])
+		self.connect(self.btn_stretch, lambda: self.set_image_mode(MODE_STRETCH))
+		self.connect(ACTION_1, lambda: self.set_image_mode(MODE_STRETCH))
+		self.connect(self.btn_up, lambda: self.set_image_mode(MODE_SCALE_UP))
+		self.connect(ACTION_2, lambda: self.set_image_mode(MODE_SCALE_UP))
+		self.connect(self.btn_down, lambda: self.set_image_mode(MODE_SCALE_DOWN))
+		self.connect(ACTION_3, lambda: self.set_image_mode(MODE_SCALE_DOWN))
 		# move up button
-		btn_mv_up = pyxbmct.Button('Move Up')
-		self.placeControl(btn_mv_up, *controlInfo['move_up_button'])
-		self.connect(btn_mv_up, lambda: self.move(self.move_index - 1))
-		self.connect(pyxbmct.ACTION_MOVE_UP, lambda: self.move(self.move_index - 1))
-		self.connect(pyxbmct.ACTION_MOUSE_WHEEL_UP, lambda: self.move(self.move_index - 1))
+		self.btn_mv_up = pyxbmct.Button('Move Up')
+		self.placeControl(self.btn_mv_up, *controlInfo['move_up_button'])
+		self.connect(self.btn_mv_up, lambda: self.move(self.move_index - 1))
+		self.connect(ACTION_6, lambda: self.move(self.move_index - 1))
+		#self.connect(pyxbmct.ACTION_MOVE_UP, lambda: self.move(self.move_index - 1))
+		#self.connect(pyxbmct.ACTION_MOUSE_WHEEL_UP, lambda: self.move(self.move_index - 1))
 		# move down button
-		btn_mv_down = pyxbmct.Button('Move Down')
-		self.placeControl(btn_mv_down, *controlInfo['move_down_button'])
-		self.connect(btn_mv_down, lambda: self.move(self.move_index + 1))
-		self.connect(pyxbmct.ACTION_MOVE_DOWN, lambda: self.move(self.move_index + 1))
-		self.connect(pyxbmct.ACTION_MOUSE_WHEEL_DOWN, lambda: self.move(self.move_index + 1))
+		self.btn_mv_down = pyxbmct.Button('Move Down')
+		self.placeControl(self.btn_mv_down, *controlInfo['move_down_button'])
+		self.connect(self.btn_mv_down, lambda: self.move(self.move_index + 1))
+		self.connect(ACTION_9, lambda: self.move(self.move_index + 1))
+		#self.connect(pyxbmct.ACTION_MOVE_DOWN, lambda: self.move(self.move_index + 1))
+		#self.connect(pyxbmct.ACTION_MOUSE_WHEEL_DOWN, lambda: self.move(self.move_index + 1))
 		# next button
-		btn_next = pyxbmct.Button('Next Page')
-		self.placeControl(btn_next, *controlInfo['next_button'])
-		self.connect(btn_next, lambda: self.update_page(self.current_page + 1))
-		self.connect(pyxbmct.ACTION_MOVE_RIGHT, lambda: self.update_page(self.current_page + 1))
+		self.btn_next = pyxbmct.Button('Next Page')
+		self.placeControl(self.btn_next, *controlInfo['next_button'])
+		self.connect(self.btn_next, lambda: self.update_page(self.current_page + 1))
+		self.connect(ACTION_5, lambda: self.update_page(self.current_page + 1))
+		#self.connect(pyxbmct.ACTION_MOVE_RIGHT, lambda: self.update_page(self.current_page + 1))
 		# previous button
-		btn_previous = pyxbmct.Button('Previous Page')
-		self.placeControl(btn_previous, *controlInfo['previous_button'])
-		self.connect(btn_previous, lambda: self.update_page(self.current_page - 1))
-		self.connect(pyxbmct.ACTION_MOVE_LEFT, lambda: self.update_page(self.current_page - 1))
+		self.btn_previous = pyxbmct.Button('Previous Page')
+		self.placeControl(self.btn_previous, *controlInfo['previous_button'])
+		self.connect(self.btn_previous, lambda: self.update_page(self.current_page - 1))
+		self.connect(ACTION_4, lambda: self.update_page(self.current_page - 1))
+		#self.connect(pyxbmct.ACTION_MOVE_LEFT, lambda: self.update_page(self.current_page - 1))
+
+		# show first image
+		self.update_page(self.current_page)
+		# navigation
+		self.setControlsNavigation()
+		# initial focus
+		self.setFocus(self.btn_next)
+		# animations
+		self.setControlsAnimations()
+
+	def setControlsNavigation(self):
+		# list
+		self.list.controlRight(self.btn_next)
+		# image
+		self.current_image.controlLeft(self.list)
+		self.current_image.controlRight(self.btn_next)
+		# next
+		self.btn_next.controlDown(self.btn_previous)
+		self.btn_next.controlUp(self.button)
+		self.btn_next.controlLeft(self.list)
+		# previous
+		self.btn_previous.controlUp(self.btn_next)
+		self.btn_previous.controlDown(self.btn_stretch)
+		self.btn_previous.controlLeft(self.list)
+		# stretch
+		self.btn_stretch.controlUp(self.btn_previous)
+		self.btn_stretch.controlDown(self.btn_up)
+		self.btn_stretch.controlLeft(self.list)
+		# scale up
+		self.btn_up.controlUp(self.btn_stretch)
+		self.btn_up.controlDown(self.btn_mv_up)
+		self.btn_up.controlRight(self.btn_down)
+		self.btn_up.controlLeft(self.list)
+		# scale down
+		self.btn_down.controlUp(self.btn_stretch)
+		self.btn_down.controlDown(self.btn_mv_down)
+		self.btn_down.controlLeft(self.btn_up)
+		# move up
+		self.btn_mv_up.controlUp(self.btn_up)
+		self.btn_mv_up.controlDown(self.button)
+		self.btn_mv_up.controlRight(self.btn_mv_down)
+		self.btn_mv_up.controlLeft(self.list)
+		# move down
+		self.btn_mv_down.controlUp(self.btn_down)
+		self.btn_mv_down.controlDown(self.button)
+		self.btn_mv_down.controlLeft(self.btn_mv_up)
+		# close button
+		self.button.controlUp(self.btn_mv_up)
+		self.button.controlDown(self.btn_next)
+		self.button.controlLeft(self.list)
 
 	def update_page(self, index):
 		if index != -1 and index < len(self.pages):
+			if index != self.current_page: self.move_index = 0 # reset zoom sector if another page
 			self.current_page = index
 		# label
 		if self.fade_label != None:
 			self.fade_label.setVisible(False)
-		self.fade_label = pyxbmct.FadeLabel()
+		self.fade_label = pyxbmct.FadeLabel(_alignment = pyxbmct.ALIGN_CENTER_Y, font = 'font11')
 		self.placeControl(self.fade_label, *controlInfo['fade_label'])
-		self.fade_label.addLabel(10*' ' + self.pages[self.current_page]['name'])
+		self.fade_label.addLabel(5*' ' + 'Filename:[CR]' + 8*' ' + self.pages[self.current_page]['name'])
+		# sector label
+		if self.sector_label != None:
+			self.sector_label.setVisible(False)
+		label = 5*' ' + 'Zoom sector:[CR]' + 8*' '
+		color = '0xFF349A2C' # green
+		if self.image_mode != MODE_SCALE_UP:
+			label += 'Not at Scale Up Mode'
+			color = '0xFFDCD836' # yellow
+		elif not image.pil_imported:
+			label += 'PIL not supported'
+			color = '0xFFE14C34' # red
+		else: label += '%s/%s' % (self.move_index + 1, image.TOTAL_SECTORS)
+		self.sector_label = pyxbmct.Label(label, alignment = pyxbmct.ALIGN_LEFT, font = 'font9', textColor = color)
+		self.placeControl(self.sector_label, *controlInfo['sector_label'])
 		# image
 		if self.current_image != None:
 			self.current_image.setVisible(False)
@@ -139,6 +225,8 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		self.current_image = pyxbmct.Image(to_show, aspectRatio=fixed_image_mode)
 		self.current_image.setImage(to_show, useCache=False)
 		self.placeControl(self.current_image, *controlInfo['image'])
+
+		self.setControlsAnimations()
 
 	def set_image_mode(self, mode):
 		self.image_mode = mode
@@ -170,8 +258,39 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		current_item = self.list.getListItem(current_pos)
 		#utils.notify('%s - %s' % (str(current_pos), current_item.getLabel()))
 
+	def setControlsAnimations(self):
+		button_animations = [ ('Focus', self.animation_fade(80, 100)), ]
+
+		self.btn_next.setAnimations(button_animations)
+		self.btn_previous.setAnimations(button_animations)
+		self.btn_stretch.setAnimations(button_animations)
+		self.btn_up.setAnimations(button_animations)
+		self.btn_down.setAnimations(button_animations)
+		self.btn_mv_up.setAnimations(button_animations)
+		self.btn_mv_down.setAnimations(button_animations)
+		self.button.setAnimations(button_animations)
+
+	#def onAction(self, action):
+	#	btn_code = action.getButtonCode()
+	#	id = action.getId()
+	#	utils.notify('Action - ID:%s Code:%s' % (id, str(btn_code)), time=1000)
+	
+	#def onControl(self, control):
+	#	pass
+
 	def setAnimation(self, control):
-		control.setAnimations([('WindowOpen', 'effect=fade start=0 end=100 time=500',),
-								('WindowClose', 'effect=fade start=100 end=0 time=500',)])
+		animations = [
+			('WindowOpen', self.animation_fade(0, 100)),
+			('WindowClose', self.animation_fade(100, 0)),
+		]
+		control.setAnimations(animations)
 
+	def animation_fade(self, start, end, time = 300):
+		return 'effect=fade start=%s end=%s time=%s' % (start, end, time)
 
+	def animation_zoom(self, h_percent, v_percent, time = 100):
+		# horizontal,vertical or left,top,width,height
+		return 'effect=zoom end=%s,%s center=auto time=%s' % (h_percent, v_percent, time)
+
+	def animation_rotate(self, angle, time = 100):
+		return 'effect=rotate end=%s center=auto time=%s' % (angle, time)

@@ -40,6 +40,10 @@ class PageImage:
 		height_size = self.height//total
 		top = sector * height_size
 		bottom = ((sector + 1) * height_size) + (height_size//3)
+		if bottom > self.height: # for last page
+			offset = bottom - top
+			top = self.height - offset
+			bottom = self.height
 		im_cut = self.img.crop((left, top, right, bottom))
 		im_cut.save(self.output)
 		return True
