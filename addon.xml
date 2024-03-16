@@ -28,6 +28,10 @@
 			<fanart>resources/media/fanart.png</fanart>
 			<screenshot>resources/media/screenshot1.png</screenshot>
 			<screenshot>resources/media/screenshot2.png</screenshot>
+			<screenshot>resources/media/screenshot3.png</screenshot>
+			<screenshot>resources/media/screenshot4.png</screenshot>
+			<screenshot>resources/media/screenshot5.png</screenshot>
+			<screenshot>resources/media/screenshot6.png</screenshot>
 		</assets>
 	</extension>
 
