@@ -54,6 +54,17 @@ def do_request(url):
 def localStr(id):
 	return addon.getLocalizedString(id)
 
+def get_setting(key, converter=str):
+	value = addon.getSetting(id=key)
+	if converter is str: return str(value)
+	elif converter is bool: return value == 'true'
+	elif converter is int: return int(value)
+	elif converter is float: return float(value)
+	else: return None
+
+def set_setting(key, val):
+	return addon.setSetting(id=key, value=val)
+
 def read_file(filename, mode = 'r'):
 	with open(filename, mode) as f:
 		return f.read()

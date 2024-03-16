@@ -61,7 +61,7 @@ def parser_type(parser_obj):
 	else:
 		return 'html'
 
-def do_request(type, url, timeout = 4, headers = {}, depth = 0):
+def do_request(type, url, timeout = utils.get_setting('timeout', int), headers = {}, depth = 0):
 	#s = requests.Session()
 	#s.headers = {}
 	try:

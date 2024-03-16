@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<category label="General">
+		
+		<setting label="GUI" type="lsep"/>
+		<setting id="custom_gui" type="bool" label="Use custom GUI" default="true"/>
+		
+		<setting label="Connection" type="lsep"/>
+		<setting id="timeout" type="number" label="Timeout (seconds)" default="4"/>
+	
+	</category>
+</settings>

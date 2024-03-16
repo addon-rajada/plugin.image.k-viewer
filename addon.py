@@ -112,14 +112,17 @@ def list_chapters(provider_name, url, page):
 
 @plugin.route('/pages/<provider>/<url>')
 def list_pages(provider, url):
+	use_custom_gui = utils.get_setting('custom_gui', bool)
 	results = providers.do_list_pages(provider, url)
-	#for r in results:
-	#	link = utils.base64_decode_url(r['link'])
-	#	utils.createItem(link, r['title'], link)
-	#utils.endDirectory()
-	window = windows.PagesWindow(title='Pages', pages=results)
-	window.doModal()
-	del window
+	if not use_custom_gui:
+		for r in results:
+			link = utils.base64_decode_url(r['link'])
+			utils.createItem(link, r['title'], link)
+		utils.endDirectory()
+	else:
+		window = windows.PagesWindow(title='Pages', pages=results)
+		window.doModal()
+		del window
 
 if __name__ == '__main__':
 	utils.plugin = plugin
