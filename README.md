@@ -6,7 +6,7 @@ Comics and Mangas Viewer for Kodi
 
 ## Controls for Default Viewer
 
-<img src="resources/media/screenshot6.png" style="height: 291px; width:600px;"/>
+<img src="resources/media/screenshot6.png" style="height: 437px; width:900px; margin: 0 auto;"/>
 
 **Keyboard**
 
@@ -42,7 +42,7 @@ The custom GUI based at [PyXBMCt](https://github.com/romanvm/script.module.pyxbm
 
 For systems where PIL is not usable due [know issues](https://github.com/xbmc/xbmc/issues/21531) (android x86 for example), `Scale Up` function will not be able to `Move Up` or `Move Down`.
 
-<img src="resources/media/screenshot4.png" style="height: 291px; width:600px;"/>
+<img src="resources/media/screenshot4.png" style="height: 437px; width:900px; margin: 0 auto;"/>
 
 **Keyboard**
 
