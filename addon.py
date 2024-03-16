@@ -97,7 +97,7 @@ def list_chapters(provider_name, url, page):
 	for r in results:
 		utils.createFolder(list_pages,
 							r['title'],
-							[r['provider'], r['link']],
+							[r['provider'], r['link'], utils.base64_encode(r['title'])],
 							plot = r['plot'],
 							image = r['image'],
 							thumb = r['image'])
@@ -110,8 +110,8 @@ def list_chapters(provider_name, url, page):
 
 	utils.endDirectory()
 
-@plugin.route('/pages/<provider>/<url>')
-def list_pages(provider, url):
+@plugin.route('/pages/<provider>/<url>/<chapter_title>')
+def list_pages(provider, url, chapter_title):
 	use_custom_gui = utils.get_setting('custom_gui', bool)
 	results = providers.do_list_pages(provider, url)
 	if not use_custom_gui:
@@ -120,7 +120,7 @@ def list_pages(provider, url):
 			utils.createItem(link, r['title'], link)
 		utils.endDirectory()
 	else:
-		window = windows.PagesWindow(title='Pages', pages=results)
+		window = windows.PagesWindow(title = 'Pages for %s' % utils.base64_decode(chapter_title), pages = results)
 		window.doModal()
 		del window
 

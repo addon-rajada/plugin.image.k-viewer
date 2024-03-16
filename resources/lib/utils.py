@@ -89,10 +89,18 @@ def base64_encode_url(value):
     encoded = str(base64.b64encode(bytes(value, "utf-8")), 'utf-8')
     return encoded.replace('=', '').replace('+', '-').replace('/', '_')
 
+def base64_encode(value):
+	encoded = str(base64.b64encode(bytes(value, "utf-8")), 'utf-8')
+	return encoded
+
 def base64_decode_url(data):
     value = data.replace('-', '+').replace('_', '/')
     value += '=' * (len(value) % 4)
     return str(base64.b64decode(value), 'utf-8') # urlsafe_
+
+def base64_decode(data):
+	decoded = str(base64.b64decode(data), 'utf-8')
+	return decoded
 
 def keyboard(placeholder, title):
 	kb = xbmc.Keyboard(placeholder, title)

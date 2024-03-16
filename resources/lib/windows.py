@@ -15,7 +15,7 @@ dimensions = {
 
 controlInfo = { # row, column, rowspan, columnspan, pad_x, pad_y
 	
-	'image': [0, 2, 10, 6],
+	'image': [0, 2, 10, 6, 0, 0],
 	'fade_label': [0, 0, 1, 2],
 	'sector_label': [1, 0, 1, 2, 5, 0],
 	'list': [2, 0, 8, 2],
@@ -185,7 +185,7 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 			self.fade_label.setVisible(False)
 		self.fade_label = pyxbmct.FadeLabel(_alignment = pyxbmct.ALIGN_CENTER_Y, font = 'font11')
 		self.placeControl(self.fade_label, *controlInfo['fade_label'])
-		self.fade_label.addLabel(5*' ' + 'Filename:[CR]' + 8*' ' + self.pages[self.current_page]['name'])
+		self.fade_label.addLabel(5*' ' + 'Page %s:[CR]' % str(self.current_page + 1)  + 8*' ' + self.pages[self.current_page]['name'])
 		# sector label
 		if self.sector_label != None:
 			self.sector_label.setVisible(False)
