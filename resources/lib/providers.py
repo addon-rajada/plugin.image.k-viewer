@@ -310,13 +310,15 @@ def do_list_pages(provider, url):
 				continue
 
 	# blogspot url fix
-	num_pages = len(result)
-	workers = num_pages if (num_pages > 0 and num_pages <= 16) else 16
-	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(fix_blogspot_url, index = result.index(x), url = utils.base64_decode_url(x['link'])) for x in result]
-		for f in as_completed(futures):
-			index, new_url = f.result()
-			result[index]['link'] = utils.base64_encode_url(new_url)
+	use_custom_gui = utils.get_setting('custom_gui', bool)
+	if not use_custom_gui:
+		num_pages = len(result)
+		workers = num_pages if (num_pages > 0 and num_pages <= 16) else 16
+		with ThreadPoolExecutor(max_workers = workers) as executor:
+			futures = [executor.submit(fix_blogspot_url, index = result.index(x), url = utils.base64_decode_url(x['link'])) for x in result]
+			for f in as_completed(futures):
+				index, new_url = f.result()
+				result[index]['link'] = utils.base64_encode_url(new_url)
 	# reverse
 	if 'reverse' in p['pages'] and p['pages']['reverse'] == 'true':
 		result.reverse()

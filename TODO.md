@@ -3,6 +3,7 @@
 ### Features
 
 - comics by first letter
+- remove plot references as Picture ListItem doesn't have it
 - blogspot quality settings ?
 
 ### GUI
@@ -14,6 +15,4 @@
 
 ### Providers
 
-- mangaonline faster chapters parsing
-- mangadex english provider
 - https://everythingmoe.com/

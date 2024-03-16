@@ -108,7 +108,7 @@ def list_chapters(provider_name, url, page):
 	if len(results) > 0 and pagination:
 		utils.createFolder(list_chapters, utils.localStr(32006), [provider_name, url, int(page) + 1], utils.next_page_img, "", utils.next_page_img)
 
-	utils.endDirectory()
+	utils.endDirectory(cache=True)
 
 @plugin.route('/pages/<provider>/<url>/<chapter_title>')
 def list_pages(provider, url, chapter_title):

@@ -68,6 +68,7 @@ For systems where PIL is not usable due [know issues](https://github.com/xbmc/xb
 
 **0.2**
 
+- update providers
 - optional viewer with custom GUI
 
 **0.1**

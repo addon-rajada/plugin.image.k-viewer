@@ -86,7 +86,6 @@
 			},
 			"rows": "dom.find_once('ul', ('class', 'episodios')).find_all('li')",
 			"title": "item('a', order=1)",
-			"image": "dom.find_once('div', ('class','poster')).find_once('img').attr['src']",
 			"plot": "item('a', order=1).split('/')[-1]",
 			"link": "item('a', attribute='href', order=1)",
 			"reverse": "true"
@@ -448,7 +447,7 @@
 
 
 	{
-		"name": "mangadex",
+		"name": "mangadex_portuguese",
 		"lang": "pt-BR",
 		"type": "manga",
 		"priority": 1,
@@ -481,6 +480,60 @@
 			"rows": "['data']",
 			"title": "['attributes']['title']",
 			"mutate_title": "'%s (volume %s - capítulo %s)' % ({title}, item['attributes']['volume'], item['attributes']['chapter'])",
+			"link": "['id']",
+			"mutate_link": "'https://api.mangadex.org/at-home/server/%s' % {link}",
+			"reverse": "false"
+		},
+		"pages": {
+			"request": {
+				"type": "get"
+			},
+			"type": "json",
+			"rows": "['chapter']['dataSaver']",
+			"title": "",
+			"mutate_title": "{title}.split('-')[0]",
+			"link": "",
+			"mutate_link": "resp.json()['baseUrl'] + '/data-saver/' + resp.json()['chapter']['hash'] + '/' + {link}",
+			"reverse": "false"
+		}
+	},
+
+
+
+	{
+		"name": "mangadex_english",
+		"lang": "en",
+		"type": "manga",
+		"priority": 2,
+		"color": "ff0078ff",
+		"enabled": "true",
+		"search": {
+			"request": {
+				"url": "https://api.mangadex.org/manga?title={query}&limit=10&includes[]=cover_art&offset={page}&availableTranslatedLanguage[]=en",
+				"type": "get",
+				"pagination": "true",
+				"page_multiplier": "10 * (int(page) - 1)"
+			},
+			"type": "json",
+			"rows": "['data']",
+			"title": "['attributes']['title']['en']",
+			"image": "['relationships']",
+			"image_auxiliar": "['id']",
+			"mutate_image": "list(filter(lambda x: True if x['type'] == 'cover_art' else False, {image}))[0]['attributes']['fileName']",
+			"mutate_image2": "'https://uploads.mangadex.org/covers/%s/%s' % ({image_auxiliar}, {image})",
+			"link": "['id']",
+			"mutate_link": "'https://api.mangadex.org/chapter?manga=%s&limit=100&offset={page}&translatedLanguage[]=en' % {link}"
+		},
+		"chapters": {
+			"request": {
+				"type": "get",
+				"pagination": "true",
+				"page_multiplier": "100 * (int(page) - 1)"
+			},
+			"type": "json",
+			"rows": "['data']",
+			"title": "['attributes']['title']",
+			"mutate_title": "'%s (volume %s - chapter %s)' % ({title}, item['attributes']['volume'], item['attributes']['chapter'])",
 			"link": "['id']",
 			"mutate_link": "'https://api.mangadex.org/at-home/server/%s' % {link}",
 			"reverse": "false"
