@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-	<category label="General">
+	<category label="32025">
 		
-		<setting label="GUI" type="lsep"/>
-		<setting id="custom_gui" type="bool" label="Use custom GUI" default="true"/>
+		<setting label="32032" type="lsep"/>
+		<setting id="custom_gui" type="bool" label="32026" default="true"/>
+		<setting id="portrait_mode" type="bool" label="32027" default="false" subsetting="true" enable="eq(-1,true)"/>
 		
-		<setting label="Connection" type="lsep"/>
-		<setting id="timeout" type="number" label="Timeout (seconds)" default="4"/>
+		<setting label="32033" type="lsep"/>
+		<setting id="timeout" type="number" label="32028" default="4"/>
 	
 	</category>
 </settings>

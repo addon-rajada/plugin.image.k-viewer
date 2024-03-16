@@ -114,9 +114,41 @@ msgid "Pages for %s"
 msgstr "Páginas para %s"
 
 msgctxt "#32025"
-msgid ""
-msgstr ""
+msgid "General"
+msgstr "Geral"
 
 msgctxt "#32026"
+msgid "Use custom GUI"
+msgstr "Usar interface customizada"
+
+msgctxt "#32027"
+msgid "Use portrait mode"
+msgstr "Usar modo retrato"
+
+msgctxt "#32028"
+msgid "Timeout (seconds)"
+msgstr "Timeout (segundos)"
+
+msgctxt "#32029"
+msgid "PIL is required for Portrait mode[CR]Using Landscape mode"
+msgstr "PIL é necessário para modo retrato[CR]Usando modo paisagem"
+
+msgctxt "#32030"
+msgid "Error at Image rotating[CR]Using original image"
+msgstr "Erro ao rotacionar imagem[CR]Usando imagem original"
+
+msgctxt "#32031"
+msgid "Using image URL instead local file"
+msgstr "Usando URL ao invés do arquivo local"
+
+msgctxt "#32032"
+msgid "GUI"
+msgstr "Interface"
+
+msgctxt "#32033"
+msgid "Connection"
+msgstr "Conexão"
+
+msgctxt "#32034"
 msgid ""
 msgstr ""

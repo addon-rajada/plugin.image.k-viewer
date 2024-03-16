@@ -61,31 +61,6 @@ def parser_type(parser_obj):
 	else:
 		return 'html'
 
-def do_request(type, url, timeout = utils.get_setting('timeout', int), headers = {}, depth = 0):
-	#s = requests.Session()
-	#s.headers = {}
-	try:
-		if type == 'get':
-			resp = requests.get(url, timeout=timeout, headers=headers)
-			#resp = s.get(url, timeout=timeout, headers=headers)
-		elif type == 'post':
-			resp = requests.post(url, timeout=timeout, headers=headers)
-		return resp
-
-	except requests.exceptions.Timeout:
-		print('timeout error. depth:', depth)
-		if depth == 1: return None # 1 retries
-		else:
-			depth += 1
-			return do_request(type, url, 2*timeout, headers, depth)
-	except requests.exceptions.ConnectionError:
-		print('connection error. depth:', depth)
-		if depth == 3: return None # 3 retries
-		else:
-			depth += 1
-			return do_request(type, url, timeout, headers, depth)
-
-
 def try_eval(item, object, key, default_return = 'nothing to eval', pre_function = None):
 	if (key in object and object[key] != ""):
 		if pre_function != None:
@@ -150,7 +125,7 @@ def process_request(provider, page, req_obj, query = ''):
 	url = url.replace('{page}', str(page))
 
 	# request
-	resp = do_request(provider[req_obj]['request']['type'], url)
+	resp = utils.do_request(provider[req_obj]['request']['type'], url)
 	if resp == None: return result
 
 	# json parser
@@ -202,7 +177,7 @@ def do_list_chapters(provider, url, page):
 		page = eval(p['chapters']['request']['page_multiplier'])
 	url = url.replace('{page}', str(page))
 	# request
-	resp = do_request(p['chapters']['request']['type'], url)
+	resp = utils.do_request(p['chapters']['request']['type'], url)
 	if resp == None: return result
 
 	# json parser
@@ -252,7 +227,7 @@ def fix_blogspot_url(index, url):
 	s = url.split('=')
 	if len(s) > 1:
 		new_url = s[0]
-		xml = do_request('get', new_url + '=g')
+		xml = utils.do_request('get', new_url + '=g')
 		match = re.findall(r'(http.*googleusercontent.com.*)"\stiler_version_number', xml.text)
 		try: new_url = match[0].split('/')
 		except: return index, url
@@ -260,15 +235,20 @@ def fix_blogspot_url(index, url):
 		return index, '/'.join(new_url)
 	return index, url
 
-def do_list_pages(provider, url):
+def get_headers(provider_name, obj):
+	p = provider_by_name(provider_name)
+	custom_headers = {}
+	if 'headers' in p[obj]['request']:
+		custom_headers = p[obj]['request']['headers']
+	return custom_headers
+
+def do_list_pages(provider_name, url):
 	result = []
 	url = utils.base64_decode_url(url)
-	p = provider_by_name(provider)
+	p = provider_by_name(provider_name)
 	# request
-	custom_headers = {}
-	if 'headers' in p['pages']['request']:
-		custom_headers = p['pages']['request']['headers']
-	resp = do_request(p['pages']['request']['type'], url, headers = custom_headers)
+	custom_headers = get_headers(provider_name, 'pages')
+	resp = utils.do_request(p['pages']['request']['type'], url, headers = custom_headers)
 	if resp == None: return result
 
 	# json parser

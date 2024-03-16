@@ -44,6 +44,10 @@ For systems where PIL is not usable due [know issues](https://github.com/xbmc/xb
 
 <img src="resources/media/screenshot4.png" style="height: 437px; width:900px; margin: 0 auto;"/>
 
+There is also a portrait mode for mobile reading:
+
+<img src="resources/media/screenshot7.jpg" style="height: 900px; width:444px; margin: 0 auto;"/>
+
 **Keyboard**
 
 - `0`: quit image viewer
@@ -65,6 +69,10 @@ For systems where PIL is not usable due [know issues](https://github.com/xbmc/xb
 ---
 
 ## Changelog
+
+**0.3**
+
+- add portrait mode
 
 **0.2**
 

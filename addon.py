@@ -110,17 +110,19 @@ def list_chapters(provider_name, url, page):
 
 	utils.endDirectory(cache=True)
 
-@plugin.route('/pages/<provider>/<url>/<chapter_title>')
-def list_pages(provider, url, chapter_title):
+@plugin.route('/pages/<provider_name>/<url>/<chapter_title>')
+def list_pages(provider_name, url, chapter_title):
 	use_custom_gui = utils.get_setting('custom_gui', bool)
-	results = providers.do_list_pages(provider, url)
+	results = providers.do_list_pages(provider_name, url)
 	if not use_custom_gui:
 		for r in results:
 			link = utils.base64_decode_url(r['link'])
 			utils.createItem(link, r['title'], link)
 		utils.endDirectory()
 	else:
-		window = windows.PagesWindow(title = utils.localStr(32024) % utils.base64_decode(chapter_title), pages = results)
+		window = windows.PagesWindow(title = utils.localStr(32024) % utils.base64_decode(chapter_title),
+									 pages = results,
+									 headers = providers.get_headers(provider_name, 'pages') )
 		window.doModal()
 		del window
 

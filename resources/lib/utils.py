@@ -42,15 +42,6 @@ last_query_location = translatePath(os.path.join(addon_data, last_query_file))
 if not os.path.exists(translatePath(addon_data)):
 	os.makedirs(translatePath(addon_data)) # create addon data folder if not exists
 
-def do_request(url):
-	try:
-		response = requests.get(url)
-		if response.status_code == 200:
-			return response
-		return None
-	except Exception as e:
-		return None
-
 def localStr(id):
 	return str(addon.getLocalizedString(id))
 
@@ -64,6 +55,30 @@ def get_setting(key, converter=str):
 
 def set_setting(key, val):
 	return addon.setSetting(id=key, value=val)
+
+def do_request(type, url, timeout = get_setting('timeout', int), headers = {}, depth = 0):
+	#s = requests.Session()
+	#s.headers = {}
+	try:
+		if type == 'get':
+			resp = requests.get(url, timeout=timeout, headers=headers)
+			#resp = s.get(url, timeout=timeout, headers=headers)
+		elif type == 'post':
+			resp = requests.post(url, timeout=timeout, headers=headers)
+		return resp
+
+	except requests.exceptions.Timeout:
+		print('timeout error. depth:', depth)
+		if depth == 1: return None # 1 retries
+		else:
+			depth += 1
+			return do_request(type, url, 2*timeout, headers, depth)
+	except requests.exceptions.ConnectionError:
+		print('connection error. depth:', depth)
+		if depth == 3: return None # 3 retries
+		else:
+			depth += 1
+			return do_request(type, url, timeout, headers, depth)
 
 def read_file(filename, mode = 'r'):
 	with open(filename, mode) as f:
@@ -134,10 +149,10 @@ def refresh():
 def update(path):
 	xbmc.executebuiltin('Container.Update(%s)' % path)
 
-def notify(text, icon = icon, time = 3000):
+def notify(text, icon = icon, time = 3000, sound = True):
 	# create notification
 	dialog = xbmcgui.Dialog()
-	dialog.notification(name, text, icon, time)
+	dialog.notification(name, text, icon, time, sound)
 	del dialog
 
 def current_view_id():
