@@ -64,3 +64,59 @@ msgstr ""
 msgctxt "#32012"
 msgid "Akira|Berserk|Death Note|Dragon Ball|Naruto|One Piece"
 msgstr ""
+
+msgctxt "#32013"
+msgid "No pages found"
+msgstr ""
+
+msgctxt "#32014"
+msgid "Page %s"
+msgstr ""
+
+msgctxt "#32015"
+msgid "Close"
+msgstr ""
+
+msgctxt "#32016"
+msgid "Stretch"
+msgstr ""
+
+msgctxt "#32017"
+msgid "Scale Up"
+msgstr ""
+
+msgctxt "#32018"
+msgid "Scale Down"
+msgstr ""
+
+msgctxt "#32019"
+msgid "Move Up"
+msgstr ""
+
+msgctxt "#32020"
+msgid "Move Down"
+msgstr ""
+
+msgctxt "#32021"
+msgid "Zoom sector"
+msgstr ""
+
+msgctxt "#32022"
+msgid "Not at Scale Up Mode"
+msgstr ""
+
+msgctxt "#32023"
+msgid "PIL not supported"
+msgstr ""
+
+msgctxt "#32024"
+msgid "Pages for %s"
+msgstr ""
+
+msgctxt "#32025"
+msgid ""
+msgstr ""
+
+msgctxt "#32026"
+msgid ""
+msgstr ""

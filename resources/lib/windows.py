@@ -55,7 +55,7 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		self.setGeometry(dimensions['w'], dimensions['h'], dimensions['rows'], dimensions['columns'])
 		# pages
 		if len(pages) == 0:
-			utils.notify('No Pages')
+			utils.notify(utils.localStr(32013))
 			self.close()
 			return
 		self.pages = []
@@ -77,19 +77,19 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		# list
 		self.list = pyxbmct.List()
 		self.placeControl(self.list, *controlInfo['list'])
-		self.list.addItems(['Page %s' % str(int(index) + 1) for index, item in enumerate(self.pages)])
+		self.list.addItems([utils.localStr(32014) % str(int(index) + 1) for index, item in enumerate(self.pages)])
 		self.connect(self.list, self.selected_page)
 		# close button
-		self.button = pyxbmct.Button('Close')
+		self.button = pyxbmct.Button(utils.localStr(32015))
 		self.placeControl(self.button, *controlInfo['close_button'])
 		self.connect(self.button, self.close)
 		self.connect(pyxbmct.ACTION_PREVIOUS_MENU, self.close)
 		self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
 		self.connect(ACTION_0, self.close)
 		# image mode buttons
-		self.btn_stretch = pyxbmct.Button('Stretch')
-		self.btn_up = pyxbmct.Button('Scale Up')
-		self.btn_down = pyxbmct.Button('Scale Down')
+		self.btn_stretch = pyxbmct.Button(utils.localStr(32016))
+		self.btn_up = pyxbmct.Button(utils.localStr(32017))
+		self.btn_down = pyxbmct.Button(utils.localStr(32018))
 		self.placeControl(self.btn_stretch, *controlInfo['stretch_button'])
 		self.placeControl(self.btn_up, *controlInfo['scale_up_button'])
 		self.placeControl(self.btn_down, *controlInfo['scale_down_button'])
@@ -100,27 +100,27 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		self.connect(self.btn_down, lambda: self.set_image_mode(MODE_SCALE_DOWN))
 		self.connect(ACTION_3, lambda: self.set_image_mode(MODE_SCALE_DOWN))
 		# move up button
-		self.btn_mv_up = pyxbmct.Button('Move Up')
+		self.btn_mv_up = pyxbmct.Button(utils.localStr(32019))
 		self.placeControl(self.btn_mv_up, *controlInfo['move_up_button'])
 		self.connect(self.btn_mv_up, lambda: self.move(self.move_index - 1))
 		self.connect(ACTION_6, lambda: self.move(self.move_index - 1))
 		#self.connect(pyxbmct.ACTION_MOVE_UP, lambda: self.move(self.move_index - 1))
 		#self.connect(pyxbmct.ACTION_MOUSE_WHEEL_UP, lambda: self.move(self.move_index - 1))
 		# move down button
-		self.btn_mv_down = pyxbmct.Button('Move Down')
+		self.btn_mv_down = pyxbmct.Button(utils.localStr(32020))
 		self.placeControl(self.btn_mv_down, *controlInfo['move_down_button'])
 		self.connect(self.btn_mv_down, lambda: self.move(self.move_index + 1))
 		self.connect(ACTION_9, lambda: self.move(self.move_index + 1))
 		#self.connect(pyxbmct.ACTION_MOVE_DOWN, lambda: self.move(self.move_index + 1))
 		#self.connect(pyxbmct.ACTION_MOUSE_WHEEL_DOWN, lambda: self.move(self.move_index + 1))
 		# next button
-		self.btn_next = pyxbmct.Button('Next Page')
+		self.btn_next = pyxbmct.Button(utils.localStr(32006))
 		self.placeControl(self.btn_next, *controlInfo['next_button'])
 		self.connect(self.btn_next, lambda: self.update_page(self.current_page + 1))
 		self.connect(ACTION_5, lambda: self.update_page(self.current_page + 1))
 		#self.connect(pyxbmct.ACTION_MOVE_RIGHT, lambda: self.update_page(self.current_page + 1))
 		# previous button
-		self.btn_previous = pyxbmct.Button('Previous Page')
+		self.btn_previous = pyxbmct.Button(utils.localStr(32007))
 		self.placeControl(self.btn_previous, *controlInfo['previous_button'])
 		self.connect(self.btn_previous, lambda: self.update_page(self.current_page - 1))
 		self.connect(ACTION_4, lambda: self.update_page(self.current_page - 1))
@@ -185,20 +185,22 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 			self.fade_label.setVisible(False)
 		self.fade_label = pyxbmct.FadeLabel(_alignment = pyxbmct.ALIGN_CENTER_Y, font = 'font11')
 		self.placeControl(self.fade_label, *controlInfo['fade_label'])
-		self.fade_label.addLabel(5*' ' + 'Page %s:[CR]' % str(self.current_page + 1)  + 8*' ' + self.pages[self.current_page]['name'])
+		label_for_fade = "%s%s%s%s" % (5*' ', (utils.localStr(32014) + ':[CR]') % str(self.current_page + 1), 8*' ', self.pages[self.current_page]['name'])
+		self.fade_label.addLabel(label_for_fade)
 		# sector label
 		if self.sector_label != None:
 			self.sector_label.setVisible(False)
-		label = 5*' ' + 'Zoom sector:[CR]' + 8*' '
+		label_for_sector = "%s%s%s%s" % (5*' ', utils.localStr(32021), ':[CR]', 8*' ')
 		color = '0xFF349A2C' # green
 		if self.image_mode != MODE_SCALE_UP:
-			label += 'Not at Scale Up Mode'
+			label_for_sector += utils.localStr(32022)
 			color = '0xFFDCD836' # yellow
 		elif not image.pil_imported:
-			label += 'PIL not supported'
+			label_for_sector += utils.localStr(32023)
 			color = '0xFFE14C34' # red
-		else: label += '%s/%s' % (self.move_index + 1, image.TOTAL_SECTORS)
-		self.sector_label = pyxbmct.Label(label, alignment = pyxbmct.ALIGN_LEFT, font = 'font9', textColor = color)
+		else:
+			label_for_sector += '%s/%s' % (str(self.move_index + 1), str(image.TOTAL_SECTORS))
+		self.sector_label = pyxbmct.Label(label_for_sector, alignment = pyxbmct.ALIGN_LEFT, font = 'font9', textColor = color)
 		self.placeControl(self.sector_label, *controlInfo['sector_label'])
 		# image
 		if self.current_image != None:

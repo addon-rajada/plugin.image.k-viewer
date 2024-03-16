@@ -120,7 +120,7 @@ def list_pages(provider, url, chapter_title):
 			utils.createItem(link, r['title'], link)
 		utils.endDirectory()
 	else:
-		window = windows.PagesWindow(title = 'Pages for %s' % utils.base64_decode(chapter_title), pages = results)
+		window = windows.PagesWindow(title = utils.localStr(32024) % utils.base64_decode(chapter_title), pages = results)
 		window.doModal()
 		del window
 

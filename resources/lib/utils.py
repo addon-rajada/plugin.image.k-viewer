@@ -52,7 +52,7 @@ def do_request(url):
 		return None
 
 def localStr(id):
-	return addon.getLocalizedString(id)
+	return str(addon.getLocalizedString(id))
 
 def get_setting(key, converter=str):
 	value = addon.getSetting(id=key)
