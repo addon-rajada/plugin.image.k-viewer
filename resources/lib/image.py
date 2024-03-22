@@ -16,8 +16,12 @@ class PageImage:
 		self.is_pil_imported = pil_imported
 		if not self.is_pil_imported: return None
 		self.input = filename
-		self.img = Image.open(self.input)
+		try: self.img = Image.open(self.input)
+		except Exception as e:
+			self.is_img_opened = False
+			return None
 		self.size = self.width, self.height = self.img.size
+		self.is_img_opened = True
 
 	def check_extension(self, name):
 		if not name.endswith('.png'):
@@ -26,15 +30,20 @@ class PageImage:
 
 	def rotate(self, output, deg = 90):
 		if not self.is_pil_imported: return False
+		if not self.is_img_opened: return False
 		self.output = self.check_extension(output)
-		im_rotate = self.img.rotate(deg, expand = True)
-		if deg == 90 or deg == 270:
-			im_rotate.resize((self.height, self.width), resample = 0)
-		im_rotate.save(self.output)
-		return True
+		try:
+			im_rotate = self.img.rotate(deg, expand = True)
+			if deg == 90 or deg == 270:
+				im_rotate.resize((self.height, self.width), resample = 0)
+			im_rotate.save(self.output)
+			return True
+		except Exception as e:
+			return False
 
 	def cut(self, output, sector = 0, total = TOTAL_SECTORS):
 		if not self.is_pil_imported: return False
+		if not self.is_img_opened: return False
 		self.output = self.check_extension(output)
 		left, right = 0, self.width
 		height_size = self.height//total
@@ -44,7 +53,10 @@ class PageImage:
 			offset = bottom - top
 			top = self.height - offset
 			bottom = self.height
-		im_cut = self.img.crop((left, top, right, bottom))
-		im_cut.save(self.output)
-		return True
+		try:
+			im_cut = self.img.crop((left, top, right, bottom))
+			im_cut.save(self.output)
+			return True
+		except Exception as e:
+			return False
 
