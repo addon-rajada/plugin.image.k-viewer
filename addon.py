@@ -111,7 +111,8 @@ def list_chapters(provider_name, url, page):
 	utils.endDirectory(cache=True)
 
 @plugin.route('/pages/<provider_name>/<url>/<chapter_title>')
-def list_pages(provider_name, url, chapter_title):
+@plugin.route('/pages/<provider_name>/<url>')
+def list_pages(provider_name, url, chapter_title = ''):
 	use_custom_gui = utils.get_setting('custom_gui', bool)
 	results = providers.do_list_pages(provider_name, url)
 	if not use_custom_gui:

@@ -2,6 +2,7 @@
 # Copyright (C) 2024 gbchr
 
 import pyxbmct
+from kodi_six import xbmc, xbmcgui
 from resources.lib import utils, image
 from uuid import uuid4
 import os
@@ -29,17 +30,17 @@ controlInfoLandscape = { # row, column, rowspan, columnspan, pad_x, pad_y
 	'sector_label': [1, 0, 1, 2, 5, 0],
 	'list': [2, 0, 8, 2],
 	
-	'next_button': [1, 8, 1, 2],
-	'previous_button': [2, 8, 1, 2],
+	'next_button': [1, 8, 1, 2, 15, -12],
+	'previous_button': [2, 8, 1, 2, 15, -12],
 
-	'stretch_button': [4, 8, 1, 2],
-	'scale_up_button': [5, 8, 1, 1],
-	'scale_down_button': [5, 9, 1, 1],
+	'stretch_button': [4, 8, 1, 2, 15, -12],
+	'scale_up_button': [5, 8, 1, 1, 2, -10],
+	'scale_down_button': [5, 9, 1, 1, 2, -10],
 
-	'move_up_button': [6, 8, 1, 1],
-	'move_down_button': [6, 9, 1, 1],
+	'move_up_button': [6, 8, 1, 1, 2, -10],
+	'move_down_button': [6, 9, 1, 1, 2, -10],
 
-	'close_button': [9, 8, 1, 2],
+	'close_button': [9, 8, 1, 2, 15, -12],
 }
 
 controlInfoPortrait = { # row, column, rowspan, columnspan, pad_x, pad_y
@@ -49,8 +50,8 @@ controlInfoPortrait = { # row, column, rowspan, columnspan, pad_x, pad_y
 	'sector_label': [0, 0, 1, 1],
 	'list': [0, 0, 1, 1],
 
-	'next_button': [0, 18, 10, 1],
-	'previous_button': [10, 18, 10, 1],
+	'next_button': [0, 18, 10, 1, -15, 5],
+	'previous_button': [10, 18, 10, 1, -15, 5],
 
 	'stretch_button': [0, 0, 1, 1],
 	'scale_up_button': [0, 0, 1, 1],
@@ -59,11 +60,40 @@ controlInfoPortrait = { # row, column, rowspan, columnspan, pad_x, pad_y
 	'move_up_button': [0, 0, 1, 1],
 	'move_down_button': [0, 0, 1, 1],
 	
-	'close_button': [0, 19, 20, 1],
+	'close_button': [0, 19, 20, 1, -15, 5],
 }
+
+buttonsTextureLandscape = {
+	'focusTexture': utils.img('textures/button_focus.png'),
+	'noFocusTexture': utils.img('textures/button_unfocus.png'),
+	#'textColor': '0xFFFFFFFF',
+	#'shadowColor': '0xFF000000',
+	#'focusedColor': '0xFF00FFFF',
+}
+
+buttonsTexturePortrait = {
+	'focusTexture': utils.img('textures/button_focus_vertical.png'),
+	'noFocusTexture': utils.img('textures/button_unfocus_vertical.png'),
+}
+
+listTextureLandscape = {
+	'buttonTexture': utils.img('textures/ListMenuItemNF.png'),
+	'buttonFocusTexture': utils.img('textures/ListMenuItemFO.png'),
+	'_itemTextXOffset': 10, # default is 10
+	'_itemTextYOffset': 2, # default is 2
+	'_itemHeight': 37, # default is 27
+	'_space': 2, # default is 2
+}
+
+listTexturePortrait = {
+	# no list at portrait mode
+}
+
 
 dimensions = None
 controlInfo = None
+buttonsTexture = None
+listTexture = None
 
 MODE_STRETCH = 0
 MODE_SCALE_UP = 1
@@ -80,21 +110,36 @@ ACTION_7 = 65
 ACTION_8 = 66
 ACTION_9 = 67
 
-class PagesWindow(pyxbmct.AddonDialogWindow):
+#class PagesWindow(pyxbmct.AddonDialogWindow):
+class PagesWindow(pyxbmct.BlankDialogWindow):
 
 	def __init__(self, title = '', pages = [], headers = {}):
-		super(PagesWindow, self).__init__(title)
+		#super(PagesWindow, self).__init__(title)
+		super(PagesWindow, self).__init__()
 		# view mode check
-		global dimensions, controlInfo, IS_PORTRAIT_MODE
+		global dimensions, controlInfo, buttonsTexture, listTexture, IS_PORTRAIT_MODE
 		dimensions = dimensionsLandscape
 		controlInfo = controlInfoLandscape
+		buttonsTexture = buttonsTextureLandscape
+		listTexture = listTextureLandscape
 		if IS_PORTRAIT_MODE:
 			if not image.pil_imported:
 				utils.notify(utils.localStr(32029))
 				IS_PORTRAIT_MODE = False
+				
+				# debug
+				#dimensions = dimensionsPortrait
+				#controlInfo = controlInfoPortrait
+				#buttonsTexture = buttonsTexturePortrait
+				#listTexture = listTexturePortrait
 			else:
 				dimensions = dimensionsPortrait
-				controlInfo = controlInfoPortrait	
+				controlInfo = controlInfoPortrait 
+				buttonsTexture = buttonsTexturePortrait
+				listTexture = listTexturePortrait
+		# background
+		self.main_bg = xbmcgui.ControlImage(1, 1, dimensions['w'], dimensions['h'], utils.img('textures/texture_black.png'))
+		self.addControl(self.main_bg)
 		# window layout
 		self.setGeometry(dimensions['w'], dimensions['h'], dimensions['rows'], dimensions['columns'])
 		# pages
@@ -120,25 +165,25 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		self.cut_uuid = None
 		self.sector_label = None
 		# list
-		self.list = pyxbmct.List()
+		self.list = pyxbmct.List(**listTexture)
 		self.placeControl(self.list, *controlInfo['list'])
 		self.list.addItems([utils.localStr(32014) % str(int(index) + 1) for index, item in enumerate(self.pages)])
 		self.connect(self.list, self.selected_page)
 		if IS_PORTRAIT_MODE: self.list.setVisible(False)
 		# close button
 		if IS_PORTRAIT_MODE:
-			self.button = pyxbmct.Button('X')
+			self.button = pyxbmct.Button('X', **buttonsTexture)
 		else:
-			self.button = pyxbmct.Button(utils.localStr(32015))
+			self.button = pyxbmct.Button(utils.localStr(32015), **buttonsTexture)
 		self.placeControl(self.button, *controlInfo['close_button'])
 		self.connect(self.button, self.close)
 		self.connect(pyxbmct.ACTION_PREVIOUS_MENU, self.close)
 		self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
 		self.connect(ACTION_0, self.close)
 		# image mode buttons
-		self.btn_stretch = pyxbmct.Button(utils.localStr(32016))
-		self.btn_up = pyxbmct.Button(utils.localStr(32017))
-		self.btn_down = pyxbmct.Button(utils.localStr(32018))
+		self.btn_stretch = pyxbmct.Button(utils.localStr(32016), **buttonsTexture)
+		self.btn_up = pyxbmct.Button(utils.localStr(32017), **buttonsTexture)
+		self.btn_down = pyxbmct.Button(utils.localStr(32018), **buttonsTexture)
 		self.placeControl(self.btn_stretch, *controlInfo['stretch_button'])
 		self.placeControl(self.btn_up, *controlInfo['scale_up_button'])
 		self.placeControl(self.btn_down, *controlInfo['scale_down_button'])
@@ -153,7 +198,7 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 			self.btn_up.setVisible(False)
 			self.btn_down.setVisible(False)
 		# move up button
-		self.btn_mv_up = pyxbmct.Button(utils.localStr(32019))
+		self.btn_mv_up = pyxbmct.Button(utils.localStr(32019), **buttonsTexture)
 		self.placeControl(self.btn_mv_up, *controlInfo['move_up_button'])
 		self.connect(self.btn_mv_up, lambda: self.move(self.move_index - 1))
 		self.connect(ACTION_6, lambda: self.move(self.move_index - 1))
@@ -161,7 +206,7 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		#self.connect(pyxbmct.ACTION_MOUSE_WHEEL_UP, lambda: self.move(self.move_index - 1))
 		if IS_PORTRAIT_MODE: self.btn_mv_up.setVisible(False)
 		# move down button
-		self.btn_mv_down = pyxbmct.Button(utils.localStr(32020))
+		self.btn_mv_down = pyxbmct.Button(utils.localStr(32020), **buttonsTexture)
 		self.placeControl(self.btn_mv_down, *controlInfo['move_down_button'])
 		self.connect(self.btn_mv_down, lambda: self.move(self.move_index + 1))
 		self.connect(ACTION_9, lambda: self.move(self.move_index + 1))
@@ -170,18 +215,18 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		if IS_PORTRAIT_MODE: self.btn_mv_down.setVisible(False)
 		# next button
 		if IS_PORTRAIT_MODE:
-			self.btn_next = pyxbmct.Button('↑', font = 'font14')
+			self.btn_next = pyxbmct.Button('↑', font = 'font14', **buttonsTexture)
 		else:
-			self.btn_next = pyxbmct.Button(utils.localStr(32006))
+			self.btn_next = pyxbmct.Button(utils.localStr(32006), **buttonsTexture)
 		self.placeControl(self.btn_next, *controlInfo['next_button'])
 		self.connect(self.btn_next, lambda: self.update_page(self.current_page + 1))
 		self.connect(ACTION_5, lambda: self.update_page(self.current_page + 1))
 		#self.connect(pyxbmct.ACTION_MOVE_RIGHT, lambda: self.update_page(self.current_page + 1))
 		# previous button
 		if IS_PORTRAIT_MODE:
-			self.btn_previous = pyxbmct.Button('↓', font = 'font14')
+			self.btn_previous = pyxbmct.Button('↓', font = 'font14', **buttonsTexture)
 		else:
-			self.btn_previous = pyxbmct.Button(utils.localStr(32007))
+			self.btn_previous = pyxbmct.Button(utils.localStr(32007), **buttonsTexture)
 		self.placeControl(self.btn_previous, *controlInfo['previous_button'])
 		self.connect(self.btn_previous, lambda: self.update_page(self.current_page - 1))
 		self.connect(ACTION_4, lambda: self.update_page(self.current_page - 1))
@@ -197,45 +242,55 @@ class PagesWindow(pyxbmct.AddonDialogWindow):
 		self.setControlsAnimations()
 
 	def setControlsNavigation(self):
-		# list
-		self.list.controlRight(self.btn_next)
-		# image
-		self.current_image.controlLeft(self.list)
-		self.current_image.controlRight(self.btn_next)
-		# next
-		self.btn_next.controlDown(self.btn_previous)
-		self.btn_next.controlUp(self.button)
-		self.btn_next.controlLeft(self.list)
-		# previous
-		self.btn_previous.controlUp(self.btn_next)
-		self.btn_previous.controlDown(self.btn_stretch)
-		self.btn_previous.controlLeft(self.list)
-		# stretch
-		self.btn_stretch.controlUp(self.btn_previous)
-		self.btn_stretch.controlDown(self.btn_up)
-		self.btn_stretch.controlLeft(self.list)
-		# scale up
-		self.btn_up.controlUp(self.btn_stretch)
-		self.btn_up.controlDown(self.btn_mv_up)
-		self.btn_up.controlRight(self.btn_down)
-		self.btn_up.controlLeft(self.list)
-		# scale down
-		self.btn_down.controlUp(self.btn_stretch)
-		self.btn_down.controlDown(self.btn_mv_down)
-		self.btn_down.controlLeft(self.btn_up)
-		# move up
-		self.btn_mv_up.controlUp(self.btn_up)
-		self.btn_mv_up.controlDown(self.button)
-		self.btn_mv_up.controlRight(self.btn_mv_down)
-		self.btn_mv_up.controlLeft(self.list)
-		# move down
-		self.btn_mv_down.controlUp(self.btn_down)
-		self.btn_mv_down.controlDown(self.button)
-		self.btn_mv_down.controlLeft(self.btn_mv_up)
-		# close button
-		self.button.controlUp(self.btn_mv_up)
-		self.button.controlDown(self.btn_next)
-		self.button.controlLeft(self.list)
+		if IS_PORTRAIT_MODE:
+			# next
+			self.btn_next.controlDown(self.button)
+			self.btn_next.controlLeft(self.btn_previous)
+			# previous
+			self.btn_previous.controlDown(self.button)
+			self.btn_previous.controlRight(self.btn_next)
+			# close button
+			self.button.controlUp(self.btn_next)
+		else:
+			# list
+			self.list.controlRight(self.btn_next)
+			# image
+			self.current_image.controlLeft(self.list)
+			self.current_image.controlRight(self.btn_next)
+			# next
+			self.btn_next.controlDown(self.btn_previous)
+			self.btn_next.controlUp(self.button)
+			self.btn_next.controlLeft(self.list)
+			# previous
+			self.btn_previous.controlUp(self.btn_next)
+			self.btn_previous.controlDown(self.btn_stretch)
+			self.btn_previous.controlLeft(self.list)
+			# stretch
+			self.btn_stretch.controlUp(self.btn_previous)
+			self.btn_stretch.controlDown(self.btn_up)
+			self.btn_stretch.controlLeft(self.list)
+			# scale up
+			self.btn_up.controlUp(self.btn_stretch)
+			self.btn_up.controlDown(self.btn_mv_up)
+			self.btn_up.controlRight(self.btn_down)
+			self.btn_up.controlLeft(self.list)
+			# scale down
+			self.btn_down.controlUp(self.btn_stretch)
+			self.btn_down.controlDown(self.btn_mv_down)
+			self.btn_down.controlLeft(self.btn_up)
+			# move up
+			self.btn_mv_up.controlUp(self.btn_up)
+			self.btn_mv_up.controlDown(self.button)
+			self.btn_mv_up.controlRight(self.btn_mv_down)
+			self.btn_mv_up.controlLeft(self.list)
+			# move down
+			self.btn_mv_down.controlUp(self.btn_down)
+			self.btn_mv_down.controlDown(self.button)
+			self.btn_mv_down.controlLeft(self.btn_mv_up)
+			# close button
+			self.button.controlUp(self.btn_mv_up)
+			self.button.controlDown(self.btn_next)
+			self.button.controlLeft(self.list)
 
 	def update_page(self, index):
 		if index != -1 and index < len(self.pages):
