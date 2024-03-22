@@ -118,7 +118,7 @@ msgid "General"
 msgstr ""
 
 msgctxt "#32026"
-msgid "Use custom GUI"
+msgid "Use custom GUI Viewer"
 msgstr ""
 
 msgctxt "#32027"
