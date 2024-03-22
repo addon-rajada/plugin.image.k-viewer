@@ -166,7 +166,7 @@ msgid "Show provider language prefix"
 msgstr ""
 
 msgctxt "#32038"
-msgid ""
+msgid "Chapter:"
 msgstr ""
 
 msgctxt "#32039"

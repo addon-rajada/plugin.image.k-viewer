@@ -166,8 +166,8 @@ msgid "Show provider language prefix"
 msgstr "Exibir idioma do provedor"
 
 msgctxt "#32038"
-msgid ""
-msgstr ""
+msgid "Chapter:"
+msgstr "Capítulo:"
 
 msgctxt "#32039"
 msgid ""

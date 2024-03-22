@@ -12,7 +12,7 @@ IS_PORTRAIT_MODE = utils.get_setting('portrait_mode', bool)
 dimensionsLandscape = {
 	'w': 1280,
 	'h': 720,
-	'rows': 10,
+	'rows': 30,
 	'columns': 10,
 }
 
@@ -25,22 +25,25 @@ dimensionsPortrait = {
 
 controlInfoLandscape = { # row, column, rowspan, columnspan, pad_x, pad_y
 	
-	'image': [0, 2, 10, 6, 0, 0],
-	'fade_label': [0, 0, 1, 2],
-	'sector_label': [1, 0, 1, 2, 5, 0],
-	'list': [2, 0, 8, 2],
+	'image': [0, 2, 30, 6, 0, 0],
+	'fade_label': [4, 0, 2, 2],
+	'sector_label': [6, 0, 3, 2, 5, 0],
+	'page_label': [3, 0, 1, 2],
+	'chapter_label': [0, 0, 1, 2],
+	'chapter_fade_label': [1, 0, 2, 2],
+	'list': [9, 0, 21, 2],
 	
-	'next_button': [1, 8, 1, 2, 15, -12],
-	'previous_button': [2, 8, 1, 2, 15, -12],
+	'next_button': [3, 8, 3, 2, 15, -12],
+	'previous_button': [6, 8, 3, 2, 15, -12],
 
-	'stretch_button': [4, 8, 1, 2, 15, -12],
-	'scale_up_button': [5, 8, 1, 1, 2, -10],
-	'scale_down_button': [5, 9, 1, 1, 2, -10],
+	'stretch_button': [12, 8, 3, 2, 15, -12],
+	'scale_up_button': [15, 8, 3, 1, 2, -10],
+	'scale_down_button': [15, 9, 3, 1, 2, -10],
 
-	'move_up_button': [6, 8, 1, 1, 2, -10],
-	'move_down_button': [6, 9, 1, 1, 2, -10],
+	'move_up_button': [18, 8, 3, 1, 2, -10],
+	'move_down_button': [18, 9, 3, 1, 2, -10],
 
-	'close_button': [9, 8, 1, 2, 15, -12],
+	'close_button': [27, 8, 3, 2, 15, -12],
 }
 
 controlInfoPortrait = { # row, column, rowspan, columnspan, pad_x, pad_y
@@ -116,6 +119,7 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 	def __init__(self, title = '', pages = [], headers = {}):
 		#super(PagesWindow, self).__init__(title)
 		super(PagesWindow, self).__init__()
+		self.title = title
 		# view mode check
 		global dimensions, controlInfo, buttonsTexture, listTexture, IS_PORTRAIT_MODE
 		dimensions = dimensionsLandscape
@@ -158,12 +162,22 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 		# auxiliar variables
 		self.image_mode = MODE_SCALE_DOWN
 		self.move_index = 0 # page top
-		self.fade_label = None
+		self.fade_label = None # page filename
+		self.page_label = None
 		self.current_image = None
 		self.original_uuid = None # use UUID instead fixed/image name because Kodi cache behaviour
 		self.rotated_uuid = None
 		self.cut_uuid = None
 		self.sector_label = None
+		# chapter title label
+		if not IS_PORTRAIT_MODE:
+			self.chapter_fade_label = pyxbmct.FadeLabel(_alignment = pyxbmct.ALIGN_CENTER_Y, font = 'font9')
+			self.placeControl(self.chapter_fade_label, *controlInfo['chapter_fade_label'])
+			self.chapter_fade_label.addLabel('%s%s' % (8*' ', self.title))
+		# chapter label
+		if not IS_PORTRAIT_MODE:
+			self.chapter_label = pyxbmct.Label('%s%s' % (5*' ', utils.localStr(32038)), alignment = pyxbmct.ALIGN_LEFT, font = 'font9')
+			self.placeControl(self.chapter_label, *controlInfo['chapter_label'])
 		# list
 		self.list = pyxbmct.List(**listTexture)
 		self.placeControl(self.list, *controlInfo['list'])
@@ -296,18 +310,22 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 		if index != -1 and index < len(self.pages):
 			if index != self.current_page: self.move_index = 0 # reset zoom sector if another page
 			self.current_page = index
-		# label
+		# current page label
+		if self.page_label != None:
+			self.page_label.setVisible(False)
+		if not IS_PORTRAIT_MODE:
+			crrt_page_str = '%s%s' % (5*' ', (utils.localStr(32014) + ':[CR]') % str(self.current_page + 1))
+			self.page_label = pyxbmct.Label(crrt_page_str, alignment = pyxbmct.ALIGN_LEFT, font = 'font9')
+			self.placeControl(self.page_label, *controlInfo['page_label'])
+		# page filename label
 		if self.fade_label != None:
 			self.fade_label.setVisible(False)
 		if not IS_PORTRAIT_MODE:
-			self.fade_label = pyxbmct.FadeLabel(_alignment = pyxbmct.ALIGN_CENTER_Y, font = 'font11')
+			self.fade_label = pyxbmct.FadeLabel(_alignment = pyxbmct.ALIGN_CENTER_Y, font = 'font9')
 			self.placeControl(self.fade_label, *controlInfo['fade_label'])
-			label_for_fade = "%s%s%s%s" % (5*' ',
-											(utils.localStr(32014) + ':[CR]') % str(self.current_page + 1),
-											8*' ',
-											self.pages[self.current_page]['name'])
+			label_for_fade = "%s%s" % (8*' ', self.pages[self.current_page]['name'])
 			self.fade_label.addLabel(label_for_fade)
-		# sector label
+		# zoom sector label
 		if self.sector_label != None:
 			self.sector_label.setVisible(False)
 		if not IS_PORTRAIT_MODE:
