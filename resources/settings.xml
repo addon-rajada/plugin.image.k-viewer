@@ -3,6 +3,9 @@
 	<category label="32025">
 		
 		<setting label="32032" type="lsep"/>
+		<setting id="provider_prefix" type="bool" label="32036" default="false"/>
+		<setting id="lang_prefix" type="bool" label="32037" default="true"/>
+		<setting id="previous_page_item" type="bool" label="32035" default="false"/>
 		<setting id="transparent" type="bool" label="32034" default="true"/>
 		<setting id="custom_gui" type="bool" label="32026" default="true"/>
 		<setting id="portrait_mode" type="bool" label="32027" default="false" subsetting="true" enable="eq(-1,true)"/>

@@ -154,15 +154,15 @@ msgid "Use transparent icons"
 msgstr ""
 
 msgctxt "#32035"
-msgid ""
+msgid "Show previous page item"
 msgstr ""
 
 msgctxt "#32036"
-msgid ""
+msgid "Show provider name prefix"
 msgstr ""
 
 msgctxt "#32037"
-msgid ""
+msgid "Show provider language prefix"
 msgstr ""
 
 msgctxt "#32038"

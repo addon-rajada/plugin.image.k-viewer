@@ -154,16 +154,16 @@ msgid "Use transparent icons"
 msgstr "Usar ícones transparentes"
 
 msgctxt "#32035"
-msgid ""
-msgstr ""
+msgid "Show previous page item"
+msgstr "Exibir item de Página anterior"
 
 msgctxt "#32036"
-msgid ""
-msgstr ""
+msgid "Show provider name prefix"
+msgstr "Exibir nome do provedor"
 
 msgctxt "#32037"
-msgid ""
-msgstr ""
+msgid "Show provider language prefix"
+msgstr "Exibir idioma do provedor"
 
 msgctxt "#32038"
 msgid ""

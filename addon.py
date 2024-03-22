@@ -55,7 +55,7 @@ def search(query, page):
 							[result['provider'], result['link'], FIRST_PAGE],
 							image = result['image'],
 							plot = result['plot'])
-	if int(page) > 1:
+	if int(page) > 1 and utils.get_setting('previous_page_item', bool):
 		utils.createFolder(search, utils.localStr(32007), [query, int(page) - 1], utils.previous_page_img, "", utils.previous_page_img)
 	if len(results) > 0:
 		utils.createFolder(search, utils.localStr(32006), [query, int(page) + 1], utils.next_page_img, "", utils.next_page_img)
@@ -70,7 +70,7 @@ def popular(type, page):
 							[result['provider'], result['link'], FIRST_PAGE],
 							image = result['image'],
 							plot = result['plot'])
-	if int(page) > 1:
+	if int(page) > 1 and utils.get_setting('previous_page_item', bool):
 		utils.createFolder(popular, utils.localStr(32007), [type, int(page) - 1], utils.previous_page_img, "", utils.previous_page_img)
 	if len(results) > 0:
 		utils.createFolder(popular, utils.localStr(32006), [type, int(page) + 1], utils.next_page_img, "", utils.next_page_img)
@@ -85,7 +85,7 @@ def specific_keyword(type, keyword, page):
 							[result['provider'], result['link'], FIRST_PAGE],
 							image = result['image'],
 							plot = result['plot'])
-	if int(page) > 1:
+	if int(page) > 1 and utils.get_setting('previous_page_item', bool):
 		utils.createFolder(specific_keyword, utils.localStr(32007), [type, keyword, int(page) - 1], utils.previous_page_img, "", utils.previous_page_img)
 	if len(results) > 0:
 		utils.createFolder(specific_keyword, utils.localStr(32006), [type, keyword, int(page) + 1], utils.next_page_img, "", utils.next_page_img)
@@ -101,7 +101,7 @@ def list_chapters(provider_name, url, page):
 							plot = r['plot'],
 							image = r['image'],
 							thumb = r['image'])
-	if int(page) > 1:
+	if int(page) > 1 and utils.get_setting('previous_page_item', bool):
 		utils.createFolder(list_chapters, utils.localStr(32007), [provider_name, url, int(page) - 1], utils.previous_page_img, "", utils.previous_page_img)
 	
 	pagination = providers.has_pagination(providers.provider_by_name(provider_name)['chapters']['request'])

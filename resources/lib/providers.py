@@ -93,7 +93,9 @@ def json_process(resp, provider, req_obj):
 				continue
 		if 'mutate_title' in provider[req_obj]:
 			title = eval(provider[req_obj]['mutate_title'].replace('{title}', repr(title)))
-		title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
+		provider_prefix = ('[%s]' % provider['name']) if utils.get_setting('provider_prefix', bool) else ''
+		lang_prefix = ('[%s]' % provider['lang']) if utils.get_setting('lang_prefix', bool) else ''
+		title = '[COLOR %s]%s%s[/COLOR] %s'%(provider['color'],provider_prefix,lang_prefix,title)
 		# process link
 		try: link = eval("%s%s" % ('item', provider[req_obj]['link']))
 		except: link = ''
@@ -148,7 +150,9 @@ def process_request(provider, page, req_obj, query = ''):
 			except: title = ''
 			if 'mutate_title' in provider[req_obj]:
 				title = eval(provider[req_obj]['mutate_title'].replace('{title}', title))
-			title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
+			provider_prefix = ('[%s]' % provider['name']) if utils.get_setting('provider_prefix', bool) else ''
+			lang_prefix = ('[%s]' % provider['lang']) if utils.get_setting('lang_prefix', bool) else ''
+			title = '[COLOR %s]%s%s[/COLOR] %s'%(provider['color'],provider_prefix,lang_prefix,title)
 
 			# process link
 			try: link = eval(provider[req_obj]['link'])
