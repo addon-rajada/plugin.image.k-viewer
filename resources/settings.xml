@@ -3,6 +3,7 @@
 	<category label="32025">
 		
 		<setting label="32032" type="lsep"/>
+		<setting id="transparent" type="bool" label="32034" default="true"/>
 		<setting id="custom_gui" type="bool" label="32026" default="true"/>
 		<setting id="portrait_mode" type="bool" label="32027" default="false" subsetting="true" enable="eq(-1,true)"/>
 		

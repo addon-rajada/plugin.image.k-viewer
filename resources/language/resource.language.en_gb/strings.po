@@ -150,5 +150,29 @@ msgid "Connection"
 msgstr ""
 
 msgctxt "#32034"
+msgid "Use transparent icons"
+msgstr ""
+
+msgctxt "#32035"
+msgid ""
+msgstr ""
+
+msgctxt "#32036"
+msgid ""
+msgstr ""
+
+msgctxt "#32037"
+msgid ""
+msgstr ""
+
+msgctxt "#32038"
+msgid ""
+msgstr ""
+
+msgctxt "#32039"
+msgid ""
+msgstr ""
+
+msgctxt "#32040"
 msgid ""
 msgstr ""

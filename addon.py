@@ -10,18 +10,18 @@ plugin = routing.Plugin()
 @plugin.route('/')
 def index():
 	# search
-	utils.createFolder(input_query, utils.localStr(32000), [])
+	utils.createFolder(input_query, utils.localStr(32000), [], image=utils.search_img, thumb=utils.search_img)
 	# comics
-	utils.createFolder(index, utils.localStr(32008), []) # separator
-	utils.createFolder(popular, utils.localStr(32001), ['hq', FIRST_PAGE])
-	utils.createFolder(recommended_comics, utils.localStr(32003), [])
-	utils.createFolder(specific_keyword, utils.localStr(32004), ['hq','marvel',FIRST_PAGE])
-	utils.createFolder(specific_keyword, utils.localStr(32005), ['hq','dc',FIRST_PAGE])
-	utils.createFolder(specific_keyword, utils.localStr(32010), ['hq','darkhorse',FIRST_PAGE])
+	utils.createFolder(index, utils.localStr(32008), [], image=utils.comics_img, thumb=utils.comics_img) # separator
+	utils.createFolder(popular, utils.localStr(32001), ['hq', FIRST_PAGE], image=utils.popular_img, thumb=utils.popular_img)
+	utils.createFolder(recommended_comics, utils.localStr(32003), [], image=utils.recommended_img, thumb=utils.recommended_img)
+	utils.createFolder(specific_keyword, utils.localStr(32004), ['hq','marvel',FIRST_PAGE], image=utils.marvel_img, thumb=utils.marvel_img)
+	utils.createFolder(specific_keyword, utils.localStr(32005), ['hq','dc',FIRST_PAGE], image=utils.dc_img, thumb=utils.dc_img)
+	utils.createFolder(specific_keyword, utils.localStr(32010), ['hq','darkhorse',FIRST_PAGE], image=utils.darkhorse_img, thumb=utils.darkhorse_img)
 	# mangas
-	utils.createFolder(index, utils.localStr(32009), []) # separator
-	utils.createFolder(popular, utils.localStr(32002), ['manga', FIRST_PAGE])
-	utils.createFolder(recommended_mangas, utils.localStr(32003), [])
+	utils.createFolder(index, utils.localStr(32009), [], image=utils.mangas_img, thumb=utils.mangas_img) # separator
+	utils.createFolder(popular, utils.localStr(32002), ['manga', FIRST_PAGE], image=utils.popular_img, thumb=utils.popular_img)
+	utils.createFolder(recommended_mangas, utils.localStr(32003), [], image=utils.recommended_img, thumb=utils.recommended_img)
 	utils.endDirectory()
 
 @plugin.route('/recommended_comics')

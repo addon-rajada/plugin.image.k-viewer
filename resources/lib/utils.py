@@ -30,21 +30,6 @@ name = addon.getAddonInfo('name')
 version = addon.getAddonInfo('version')
 profile = addon.getAddonInfo('profile')
 
-icon_img = 'icon.png'
-fanart_img = 'fanart.png'
-previous_page_img = 'previouspage.png'
-next_page_img = 'nextpage.png'
-
-last_query_file = 'last_query.txt'
-addon_data = 'special://home/userdata/addon_data/plugin.image.k-viewer'
-last_query_location = translatePath(os.path.join(addon_data, last_query_file))
-
-if not os.path.exists(translatePath(addon_data)):
-	os.makedirs(translatePath(addon_data)) # create addon data folder if not exists
-
-def localStr(id):
-	return str(addon.getLocalizedString(id))
-
 def get_setting(key, converter=str):
 	value = addon.getSetting(id=key)
 	if converter is str: return str(value)
@@ -55,6 +40,34 @@ def get_setting(key, converter=str):
 
 def set_setting(key, val):
 	return addon.setSetting(id=key, value=val)
+
+icons_prefix = 'solid_icons/'
+if get_setting('transparent', bool):
+	icons_prefix = 'transparent_icons/'
+
+icon_img = 'icon.solid.png'
+fanart_img = 'fanart.png'
+previous_page_img = 'previouspage.png'
+next_page_img = 'nextpage.png'
+
+search_img = icons_prefix + 'search.png'
+popular_img = icons_prefix + 'popular.png'
+recommended_img = icons_prefix + 'recommended.png'
+comics_img = icons_prefix + 'comics.png'
+marvel_img = icons_prefix + 'marvel.png'
+dc_img = icons_prefix + 'dc.png'
+darkhorse_img = icons_prefix + 'darkhorse.png'
+mangas_img = icons_prefix + 'mangas.png'
+
+last_query_file = 'last_query.txt'
+addon_data = 'special://home/userdata/addon_data/plugin.image.k-viewer'
+last_query_location = translatePath(os.path.join(addon_data, last_query_file))
+
+if not os.path.exists(translatePath(addon_data)):
+	os.makedirs(translatePath(addon_data)) # create addon data folder if not exists
+
+def localStr(id):
+	return str(addon.getLocalizedString(id))
 
 def do_request(type, url, timeout = get_setting('timeout', int), headers = {}, depth = 0):
 	#s = requests.Session()
@@ -209,7 +222,7 @@ def play(url):
 	#xbmc.executebuiltin('ShowPicture(%s)' % (url))
 	#xbmc.Player().play(url)
 
-def createFolder(function, label, arguments_list, image = icon_img, plot = 'aa', thumb = icon_img):
+def createFolder(function, label, arguments_list, image = icon_img, plot = ' ', thumb = icon_img):
 	# create folder linked to some function and given arguments
 	li = ListItem(bold(label))
 	li.setArt({
