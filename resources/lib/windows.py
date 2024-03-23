@@ -51,19 +51,22 @@ controlInfoPortrait = { # row, column, rowspan, columnspan, pad_x, pad_y
 	'image': [0, 0, 20, 18, 1, 1],
 	'fade_label': [0, 0, 1, 1],
 	'sector_label': [0, 0, 1, 1],
+	'page_label': [0, 0, 1, 20],
+	'chapter_label': [0, 0, 1, 1],
+	'chapter_fade_label': [0, 0, 1, 1],
 	'list': [0, 0, 1, 1],
 
-	'next_button': [0, 18, 10, 1, -15, 5],
-	'previous_button': [10, 18, 10, 1, -15, 5],
+	'next_button': [0, 19, 8, 1, -15, 5],
+	'previous_button': [8, 19, 8, 1, -15, 5],
 
-	'stretch_button': [0, 0, 1, 1],
-	'scale_up_button': [0, 0, 1, 1],
-	'scale_down_button': [0, 0, 1, 1],
+	'stretch_button': [16, 18, 4, 1],
+	'scale_up_button': [12, 18, 4, 1],
+	'scale_down_button': [8, 18, 4, 1],
 
-	'move_up_button': [0, 0, 1, 1],
-	'move_down_button': [0, 0, 1, 1],
+	'move_up_button': [4, 18, 4, 1],
+	'move_down_button': [0, 18, 4, 1],
 	
-	'close_button': [0, 19, 20, 1, -15, 5],
+	'close_button': [16, 19, 4, 1, -15, 5],
 }
 
 buttonsTextureLandscape = {
@@ -77,6 +80,21 @@ buttonsTextureLandscape = {
 buttonsTexturePortrait = {
 	'focusTexture': utils.img('textures/button_focus_vertical.png'),
 	'noFocusTexture': utils.img('textures/button_unfocus_vertical.png'),
+}
+
+buttonStretchPortrait = {
+	'focusTexture': utils.img('textures/stretch_focus.png'),
+	'noFocusTexture': utils.img('textures/stretch_unfocus.png'),
+}
+
+buttonScaleUpPortrait = {
+	'focusTexture': utils.img('textures/scale_up_focus.png'),
+	'noFocusTexture': utils.img('textures/scale_up_unfocus.png'),
+}
+
+buttonScaleDownPortrait = {
+	'focusTexture': utils.img('textures/scale_down_focus.png'),
+	'noFocusTexture': utils.img('textures/scale_down_unfocus.png'),
 }
 
 listTextureLandscape = {
@@ -194,10 +212,16 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 		self.connect(pyxbmct.ACTION_PREVIOUS_MENU, self.close)
 		self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
 		self.connect(ACTION_0, self.close)
+
 		# image mode buttons
-		self.btn_stretch = pyxbmct.Button(utils.localStr(32016), **buttonsTexture)
-		self.btn_up = pyxbmct.Button(utils.localStr(32017), **buttonsTexture)
-		self.btn_down = pyxbmct.Button(utils.localStr(32018), **buttonsTexture)
+		if IS_PORTRAIT_MODE:
+			self.btn_stretch = pyxbmct.Button('', **buttonStretchPortrait)
+			self.btn_up = pyxbmct.Button('', **buttonScaleUpPortrait)
+			self.btn_down = pyxbmct.Button('', **buttonScaleDownPortrait)
+		else:
+			self.btn_stretch = pyxbmct.Button(utils.localStr(32016), **buttonsTexture)
+			self.btn_up = pyxbmct.Button(utils.localStr(32017), **buttonsTexture)
+			self.btn_down = pyxbmct.Button(utils.localStr(32018), **buttonsTexture)
 		self.placeControl(self.btn_stretch, *controlInfo['stretch_button'])
 		self.placeControl(self.btn_up, *controlInfo['scale_up_button'])
 		self.placeControl(self.btn_down, *controlInfo['scale_down_button'])
@@ -207,26 +231,35 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 		self.connect(ACTION_2, lambda: self.set_image_mode(MODE_SCALE_UP))
 		self.connect(self.btn_down, lambda: self.set_image_mode(MODE_SCALE_DOWN))
 		self.connect(ACTION_3, lambda: self.set_image_mode(MODE_SCALE_DOWN))
-		if IS_PORTRAIT_MODE:
-			self.btn_stretch.setVisible(False)
-			self.btn_up.setVisible(False)
-			self.btn_down.setVisible(False)
+		#if IS_PORTRAIT_MODE:
+		#	self.btn_stretch.setVisible(False)
+		#	self.btn_up.setVisible(False)
+		#	self.btn_down.setVisible(False)
+
 		# move up button
-		self.btn_mv_up = pyxbmct.Button(utils.localStr(32019), **buttonsTexture)
+		if IS_PORTRAIT_MODE:
+			self.btn_mv_up = pyxbmct.Button('←', **buttonsTexture)
+		else:
+			self.btn_mv_up = pyxbmct.Button(utils.localStr(32019), **buttonsTexture)
 		self.placeControl(self.btn_mv_up, *controlInfo['move_up_button'])
 		self.connect(self.btn_mv_up, lambda: self.move(self.move_index - 1))
 		self.connect(ACTION_6, lambda: self.move(self.move_index - 1))
 		#self.connect(pyxbmct.ACTION_MOVE_UP, lambda: self.move(self.move_index - 1))
 		#self.connect(pyxbmct.ACTION_MOUSE_WHEEL_UP, lambda: self.move(self.move_index - 1))
-		if IS_PORTRAIT_MODE: self.btn_mv_up.setVisible(False)
+		#if IS_PORTRAIT_MODE: self.btn_mv_up.setVisible(False)
+
 		# move down button
-		self.btn_mv_down = pyxbmct.Button(utils.localStr(32020), **buttonsTexture)
+		if IS_PORTRAIT_MODE:
+			self.btn_mv_down = pyxbmct.Button('→', **buttonsTexture)
+		else:
+			self.btn_mv_down = pyxbmct.Button(utils.localStr(32020), **buttonsTexture)
 		self.placeControl(self.btn_mv_down, *controlInfo['move_down_button'])
 		self.connect(self.btn_mv_down, lambda: self.move(self.move_index + 1))
 		self.connect(ACTION_9, lambda: self.move(self.move_index + 1))
 		#self.connect(pyxbmct.ACTION_MOVE_DOWN, lambda: self.move(self.move_index + 1))
 		#self.connect(pyxbmct.ACTION_MOUSE_WHEEL_DOWN, lambda: self.move(self.move_index + 1))
-		if IS_PORTRAIT_MODE: self.btn_mv_down.setVisible(False)
+		#if IS_PORTRAIT_MODE: self.btn_mv_down.setVisible(False)
+
 		# next button
 		if IS_PORTRAIT_MODE:
 			self.btn_next = pyxbmct.Button('↑', font = 'font14', **buttonsTexture)
@@ -236,6 +269,7 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 		self.connect(self.btn_next, lambda: self.update_page(self.current_page + 1))
 		self.connect(ACTION_5, lambda: self.update_page(self.current_page + 1))
 		#self.connect(pyxbmct.ACTION_MOVE_RIGHT, lambda: self.update_page(self.current_page + 1))
+
 		# previous button
 		if IS_PORTRAIT_MODE:
 			self.btn_previous = pyxbmct.Button('↓', font = 'font14', **buttonsTexture)
@@ -258,13 +292,37 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 	def setControlsNavigation(self):
 		if IS_PORTRAIT_MODE:
 			# next
-			self.btn_next.controlDown(self.button)
+			self.btn_next.controlUp(self.btn_mv_down)
 			self.btn_next.controlLeft(self.btn_previous)
+			self.btn_next.controlRight(self.button)
 			# previous
-			self.btn_previous.controlDown(self.button)
+			self.btn_previous.controlUp(self.btn_down)
 			self.btn_previous.controlRight(self.btn_next)
+			self.btn_previous.controlLeft(self.button)
 			# close button
-			self.button.controlUp(self.btn_next)
+			self.button.controlUp(self.btn_stretch)
+			self.button.controlLeft(self.btn_next)
+			self.button.controlRight(self.btn_previous)
+			# stretch
+			self.btn_stretch.controlDown(self.button)
+			self.btn_stretch.controlRight(self.btn_up)
+			self.btn_stretch.controlLeft(self.btn_mv_down)
+			# scale up
+			self.btn_up.controlDown(self.btn_previous)
+			self.btn_up.controlLeft(self.btn_stretch)
+			self.btn_up.controlRight(self.btn_down)
+			# scale down
+			self.btn_down.controlDown(self.btn_previous)
+			self.btn_down.controlLeft(self.btn_up)
+			self.btn_down.controlRight(self.btn_mv_up)
+			# move up
+			self.btn_mv_up.controlDown(self.btn_next)
+			self.btn_mv_up.controlLeft(self.btn_down)
+			self.btn_mv_up.controlRight(self.btn_mv_down)
+			# move down
+			self.btn_mv_down.controlDown(self.btn_next)
+			self.btn_mv_down.controlLeft(self.btn_mv_up)
+			self.btn_mv_down.controlRight(self.btn_stretch)
 		else:
 			# list
 			self.list.controlRight(self.btn_next)
@@ -360,15 +418,15 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 			if IS_PORTRAIT_MODE:
 				fixed_image_mode = MODE_SCALE_DOWN
 
-				#if self.image_mode == MODE_SCALE_UP and pil_obj.cut(utils.datapath(self.cut_uuid), self.move_index):
-				#	pil_obj_cut = image.PageImage(utils.datapath(self.cut_uuid))
-				#	fixed_image_mode = MODE_SCALE_DOWN # at scale up mode with cut image, we actually use scale down mode
-				#	if pil_obj_cut.rotate(utils.datapath(self.rotated_uuid)):
-				#		to_show = utils.datapath(self.rotated_uuid)
-				#	else:
-				#		to_show = utils.datapath(self.original_uuid) # in case rotate fails, use original file. It won't likely happen
+				if self.image_mode == MODE_SCALE_UP and pil_obj.cut(utils.datapath(self.cut_uuid), self.move_index):
+					pil_obj_cut = image.PageImage(utils.datapath(self.cut_uuid))
+					fixed_image_mode = MODE_SCALE_DOWN # at scale up mode with cutted image, we actually use scale down mode
+					if pil_obj_cut.rotate(utils.datapath(self.rotated_uuid)):
+						to_show = utils.datapath(self.rotated_uuid)
+					else:
+						to_show = utils.datapath(self.cut_uuid) # in case rotate fails, use cutted image. It won't likely happen
 				
-				if pil_obj.rotate(utils.datapath(self.rotated_uuid)):
+				elif pil_obj.rotate(utils.datapath(self.rotated_uuid)):
 					to_show = utils.datapath(self.rotated_uuid)
 				else:
 					utils.notify(utils.localStr(32030), time = 1000, sound = False)
@@ -387,6 +445,16 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 		self.current_image = pyxbmct.Image(to_show, aspectRatio=fixed_image_mode)
 		self.current_image.setImage(to_show, useCache=False)
 		self.placeControl(self.current_image, *controlInfo['image'])
+
+		if IS_PORTRAIT_MODE:
+			# we use page label to show all info at portrait mode
+			# MUST be after image placement due z-index
+			crrt_chapter_str = '%s%s %s | ' % (5*' ', utils.localStr(32038), self.title)
+			crrt_page_str = '%s | ' % ((utils.localStr(32014)) % str(self.current_page + 1))
+			crrt_zoom_str = '%s: %s/%s' % (utils.localStr(32021), str(self.move_index + 1), str(image.TOTAL_SECTORS))
+			joined_str = crrt_chapter_str + crrt_page_str + crrt_zoom_str
+			self.page_label = pyxbmct.Label(joined_str, alignment = pyxbmct.ALIGN_LEFT, font = 'font03', textColor = '0xFFDCD836')
+			self.placeControl(self.page_label, *controlInfo['page_label'])
 
 		self.setControlsAnimations()
 

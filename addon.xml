@@ -21,7 +21,11 @@
 		<description lang="pt">HQs e Mangás</description>
 		<description lang="en_gb">Comics and Mangas</description>
 		
+		<disclaimer lang="pt">https://github.com/addon-rajada/plugin.image.k-viewer</disclaimer>
+		<disclaimer lang="en_gb">https://github.com/addon-rajada/plugin.image.k-viewer</disclaimer>
+		
 		<license>GNU General Public License, v2</license>
+		<website>https://addon-rajada.github.io/</website>
 		<source>https://github.com/addon-rajada/plugin.image.k-viewer</source>
 		<assets>
 			<icon>resources/media/icon.solid.png</icon>
