@@ -174,8 +174,8 @@ msgid "Custom GUI"
 msgstr "Interface Customizada"
 
 msgctxt "#32040"
-msgid "Trim image borders"
-msgstr "Cortar borda das imagens"
+msgid "Trim image borders (slow)"
+msgstr "Cortar borda das imagens (lento)"
 
 msgctxt "#32041"
 msgid "Show info label at portrait mode"
