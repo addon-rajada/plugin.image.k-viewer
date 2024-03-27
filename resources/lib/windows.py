@@ -33,17 +33,17 @@ controlInfoLandscape = { # row, column, rowspan, columnspan, pad_x, pad_y
 	'chapter_fade_label': [1, 0, 2, 2],
 	'list': [9, 0, 21, 2],
 	
-	'next_button': [3, 8, 3, 2, 15, -12],
-	'previous_button': [6, 8, 3, 2, 15, -12],
+	'next_button': [15, 8, 3, 2, 10, -12],
+	'previous_button': [18, 8, 3, 2, 10, -12],
 
-	'stretch_button': [12, 8, 3, 2, 15, -12],
-	'scale_up_button': [15, 8, 3, 1, 2, -10],
-	'scale_down_button': [15, 9, 3, 1, 2, -10],
+	'stretch_button': [3, 8, 3, 2, 10, -12],
+	'scale_up_button': [6, 8, 3, 1, 2, -10],
+	'scale_down_button': [6, 9, 3, 1, 2, -10],
 
-	'move_up_button': [18, 8, 3, 1, 2, -10],
-	'move_down_button': [18, 9, 3, 1, 2, -10],
+	'move_up_button': [12, 8, 3, 1, 2, -10],
+	'move_down_button': [12, 9, 3, 1, 2, -10],
 
-	'close_button': [27, 8, 3, 2, 15, -12],
+	'close_button': [27, 8, 3, 2, 10, -12],
 }
 
 controlInfoPortrait = { # row, column, rowspan, columnspan, pad_x, pad_y
@@ -331,15 +331,15 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 			self.current_image.controlRight(self.btn_next)
 			# next
 			self.btn_next.controlDown(self.btn_previous)
-			self.btn_next.controlUp(self.button)
+			self.btn_next.controlUp(self.btn_mv_down)
 			self.btn_next.controlLeft(self.list)
 			# previous
 			self.btn_previous.controlUp(self.btn_next)
-			self.btn_previous.controlDown(self.btn_stretch)
+			self.btn_previous.controlDown(self.button)
 			self.btn_previous.controlLeft(self.list)
 			# stretch
-			self.btn_stretch.controlUp(self.btn_previous)
-			self.btn_stretch.controlDown(self.btn_up)
+			self.btn_stretch.controlUp(self.button)
+			self.btn_stretch.controlDown(self.btn_down)
 			self.btn_stretch.controlLeft(self.list)
 			# scale up
 			self.btn_up.controlUp(self.btn_stretch)
@@ -352,16 +352,16 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 			self.btn_down.controlLeft(self.btn_up)
 			# move up
 			self.btn_mv_up.controlUp(self.btn_up)
-			self.btn_mv_up.controlDown(self.button)
+			self.btn_mv_up.controlDown(self.btn_next)
 			self.btn_mv_up.controlRight(self.btn_mv_down)
 			self.btn_mv_up.controlLeft(self.list)
 			# move down
 			self.btn_mv_down.controlUp(self.btn_down)
-			self.btn_mv_down.controlDown(self.button)
+			self.btn_mv_down.controlDown(self.btn_next)
 			self.btn_mv_down.controlLeft(self.btn_mv_up)
 			# close button
-			self.button.controlUp(self.btn_mv_up)
-			self.button.controlDown(self.btn_next)
+			self.button.controlUp(self.btn_previous)
+			self.button.controlDown(self.btn_stretch)
 			self.button.controlLeft(self.list)
 
 	def update_page(self, index):
@@ -418,22 +418,22 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 			if IS_PORTRAIT_MODE:
 				fixed_image_mode = MODE_SCALE_DOWN
 
-				if self.image_mode == MODE_SCALE_UP and pil_obj.cut(utils.datapath(self.cut_uuid), self.move_index):
+				if self.image_mode == MODE_SCALE_UP and pil_obj.cut(utils.datapath(self.cut_uuid), utils.get_setting('trim_image', bool), self.move_index):
 					pil_obj_cut = image.PageImage(utils.datapath(self.cut_uuid))
 					fixed_image_mode = MODE_SCALE_DOWN # at scale up mode with cutted image, we actually use scale down mode
-					if pil_obj_cut.rotate(utils.datapath(self.rotated_uuid)):
+					if pil_obj_cut.rotate(utils.datapath(self.rotated_uuid), utils.get_setting('trim_image', bool)):
 						to_show = utils.datapath(self.rotated_uuid)
 					else:
 						to_show = utils.datapath(self.cut_uuid) # in case rotate fails, use cutted image. It won't likely happen
 				
-				elif pil_obj.rotate(utils.datapath(self.rotated_uuid)):
+				elif pil_obj.rotate(utils.datapath(self.rotated_uuid), utils.get_setting('trim_image', bool)):
 					to_show = utils.datapath(self.rotated_uuid)
 				else:
 					utils.notify(utils.localStr(32030), time = 1000, sound = False)
 					to_show = utils.datapath(self.original_uuid)
 			# landscape mode
 			else:
-				if self.image_mode == MODE_SCALE_UP and pil_obj.cut(utils.datapath(self.cut_uuid), self.move_index):
+				if self.image_mode == MODE_SCALE_UP and pil_obj.cut(utils.datapath(self.cut_uuid), utils.get_setting('trim_image', bool), self.move_index):
 					fixed_image_mode = MODE_SCALE_DOWN # at scale up mode with cut image, we actually use scale down mode
 					to_show = utils.datapath(self.cut_uuid)
 				else:

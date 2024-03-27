@@ -170,9 +170,29 @@ msgid "Chapter:"
 msgstr ""
 
 msgctxt "#32039"
-msgid ""
+msgid "Custom GUI"
 msgstr ""
 
 msgctxt "#32040"
+msgid "Trim image borders"
+msgstr ""
+
+msgctxt "#32041"
+msgid ""
+msgstr ""
+
+msgctxt "#32042"
+msgid ""
+msgstr ""
+
+msgctxt "#32043"
+msgid ""
+msgstr ""
+
+msgctxt "#32044"
+msgid ""
+msgstr ""
+
+msgctxt "#32045"
 msgid ""
 msgstr ""

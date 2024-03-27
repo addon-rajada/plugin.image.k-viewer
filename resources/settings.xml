@@ -1,17 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-	<category label="32025">
-		
-		<setting label="32032" type="lsep"/>
+
+	<category label="32032">
+		<setting label="32025" type="lsep"/>
 		<setting id="provider_prefix" type="bool" label="32036" default="false"/>
 		<setting id="lang_prefix" type="bool" label="32037" default="true"/>
 		<setting id="previous_page_item" type="bool" label="32035" default="false"/>
 		<setting id="transparent" type="bool" label="32034" default="true"/>
+
+		<setting label="32039" type="lsep"/>
 		<setting id="custom_gui" type="bool" label="32026" default="true"/>
 		<setting id="portrait_mode" type="bool" label="32027" default="false" subsetting="true" enable="eq(-1,true)"/>
-		
-		<setting label="32033" type="lsep"/>
-		<setting id="timeout" type="number" label="32028" default="4"/>
-	
+		<setting id="trim_image" type="bool" label="32040" default="true" subsetting="true" enable="eq(-2,true)"/>
 	</category>
+
+	<category label="32033">
+		<setting id="timeout" type="number" label="32028" default="4"/>
+
+	</category>
+
 </settings>
