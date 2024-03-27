@@ -6,7 +6,7 @@ Comics and Mangas Viewer for Kodi
 
 ## Controls for Default Viewer
 
-<img src="resources/media/screenshot6.png" style="height: 437px; width:900px; margin: 0 auto;"/>
+<img src="resources/media/screenshot6.png" style="width:900px; margin:0 auto;"/>
 
 **Keyboard**
 
@@ -42,11 +42,11 @@ The custom GUI based at [PyXBMCt](https://github.com/romanvm/script.module.pyxbm
 
 For systems where PIL is not usable due [know issues](https://github.com/xbmc/xbmc/issues/21531) (android x86 for example), `Scale Up` function will not be able to `Move Up` or `Move Down`.
 
-<img src="resources/media/screenshot4.png" style="height: 437px; width:900px; margin: 0 auto;"/>
+<img src="resources/media/screenshot4.png" style="width:900px; margin:0 auto;"/>
 
 There is also a portrait mode for mobile reading:
 
-<img src="resources/media/screenshot7.jpg" style="height: 900px; width:444px; margin: 0 auto;"/>
+<img src="resources/media/screenshot7.png" style="height:900px; margin:0 auto;"/>
 
 **Keyboard**
 
@@ -69,6 +69,13 @@ There is also a portrait mode for mobile reading:
 ---
 
 ## Changelog
+
+**0.4**
+
+- trim image borders
+- new icons and textures
+- new settings
+- new layout for portrait mode
 
 **0.3**
 
