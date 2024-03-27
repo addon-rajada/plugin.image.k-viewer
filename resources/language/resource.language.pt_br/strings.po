@@ -178,8 +178,8 @@ msgid "Trim image borders"
 msgstr "Cortar borda das imagens"
 
 msgctxt "#32041"
-msgid ""
-msgstr ""
+msgid "Show info label at portrait mode"
+msgstr "Exibir informações no modo retrato"
 
 msgctxt "#32042"
 msgid ""

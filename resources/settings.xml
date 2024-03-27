@@ -12,6 +12,7 @@
 		<setting id="custom_gui" type="bool" label="32026" default="true"/>
 		<setting id="portrait_mode" type="bool" label="32027" default="false" subsetting="true" enable="eq(-1,true)"/>
 		<setting id="trim_image" type="bool" label="32040" default="true" subsetting="true" enable="eq(-2,true)"/>
+		<setting id="show_info_portrait" type="bool" label="32041" default="true" subsetting="true" enable="eq(-3,true)"/>
 	</category>
 
 	<category label="32033">

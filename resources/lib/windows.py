@@ -446,14 +446,14 @@ class PagesWindow(pyxbmct.BlankDialogWindow):
 		self.current_image.setImage(to_show, useCache=False)
 		self.placeControl(self.current_image, *controlInfo['image'])
 
-		if IS_PORTRAIT_MODE:
+		if IS_PORTRAIT_MODE and utils.get_setting('show_info_portrait', bool):
 			# we use page label to show all info at portrait mode
 			# MUST be after image placement due z-index
 			crrt_chapter_str = '%s%s %s | ' % (5*' ', utils.localStr(32038), self.title)
 			crrt_page_str = '%s | ' % ((utils.localStr(32014)) % str(self.current_page + 1))
 			crrt_zoom_str = '%s: %s/%s' % (utils.localStr(32021), str(self.move_index + 1), str(image.TOTAL_SECTORS))
 			joined_str = crrt_chapter_str + crrt_page_str + crrt_zoom_str
-			self.page_label = pyxbmct.Label(joined_str, alignment = pyxbmct.ALIGN_LEFT, font = 'font03', textColor = '0xFFDCD836')
+			self.page_label = pyxbmct.Label(joined_str, alignment = pyxbmct.ALIGN_LEFT, font = 'font03', textColor = '0xFFDCD836') # yellow
 			self.placeControl(self.page_label, *controlInfo['page_label'])
 
 		self.setControlsAnimations()
