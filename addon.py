@@ -18,10 +18,17 @@ def index():
 	utils.createFolder(specific_keyword, utils.localStr(32004), ['hq','marvel',FIRST_PAGE], image=utils.marvel_img, thumb=utils.marvel_img)
 	utils.createFolder(specific_keyword, utils.localStr(32005), ['hq','dc',FIRST_PAGE], image=utils.dc_img, thumb=utils.dc_img)
 	utils.createFolder(specific_keyword, utils.localStr(32010), ['hq','darkhorse',FIRST_PAGE], image=utils.darkhorse_img, thumb=utils.darkhorse_img)
+	utils.createFolder(list_letters, utils.localStr(32043), [], image=utils.letter_img, thumb=utils.letter_img)
 	# mangas
 	utils.createFolder(index, utils.localStr(32009), [], image=utils.mangas_img, thumb=utils.mangas_img) # separator
 	utils.createFolder(popular, utils.localStr(32002), ['manga', FIRST_PAGE], image=utils.popular_img, thumb=utils.popular_img)
 	utils.createFolder(recommended_mangas, utils.localStr(32003), [], image=utils.recommended_img, thumb=utils.recommended_img)
+	utils.endDirectory()
+
+@plugin.route('/list_letters')
+def list_letters():
+	for i in utils.localStr(32042).split('|'):
+		utils.createFolder(specific_keyword, i, ['hq', 'by_letter', FIRST_PAGE, i])
 	utils.endDirectory()
 
 @plugin.route('/recommended_comics')
@@ -76,9 +83,10 @@ def popular(type, page):
 		utils.createFolder(popular, utils.localStr(32006), [type, int(page) + 1], utils.next_page_img, "", utils.next_page_img)
 	utils.endDirectory(cache=True)
 
+@plugin.route('/specific_keyword/<type>/<keyword>/<page>/<query>')
 @plugin.route('/specific_keyword/<type>/<keyword>/<page>')
-def specific_keyword(type, keyword, page):
-	results = providers.by_keyword(type, keyword, page)
+def specific_keyword(type, keyword, page, query = ''):
+	results = providers.by_keyword(type, keyword, page, query)
 	for result in results:
 		utils.createFolder(list_chapters,
 							result['title'],

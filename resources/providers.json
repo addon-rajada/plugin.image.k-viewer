@@ -319,6 +319,17 @@
 			"plot": "item.find_once('div', ('class','box_test'))",
 			"link": "item('a', attribute='href', order=1) + '?page={page}'"
 		},
+		"by_letter": {
+			"request": {
+				"url": "https://xoxocomic.com/comic-list/popular?c={query}&page={page}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "dom.find_once('div', ('class','list-chapter')).find_once('nav').find_once('ul').find_all('li', ('class','row'))",
+			"title": "item('a', order=1)",
+			"image": "item('img', attribute='data-original', order=1)",
+			"link": "item('a', attribute='href', order=1) + '?page={page}'"
+		},
 		"chapters": {
 			"request": {
 				"type": "get",
@@ -405,7 +416,7 @@
 		"name": "readcomics",
 		"lang": "en",
 		"type": "hq",
-		"priority": 1,
+		"priority": 2,
 		"color": "ffe8702a",
 		"search": {
 			"request": {
@@ -454,6 +465,16 @@
 			"image": "item('img', attribute='src', order=1)",
 			"plot": "",
 			"link": "item('a', attribute='href', order=2)"
+		},
+		"by_letter": {
+			"request": {
+				"url": "https://readcomic.top/comic-list?c={query}",
+				"type": "get",
+				"pagination": "true"
+			},
+			"rows": "dom.find_once('ul', ('class','line-list')).find_all('li')",
+			"title": "item('a', order=1)",
+			"link": "item('a', attribute='href', order=1)"
 		},
 		"chapters": {
 			"request": {

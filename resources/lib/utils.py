@@ -57,6 +57,7 @@ comics_img = icons_prefix + 'comics.png'
 marvel_img = icons_prefix + 'marvel.png'
 dc_img = icons_prefix + 'dc.png'
 darkhorse_img = icons_prefix + 'darkhorse.png'
+letter_img = icons_prefix + 'hashtag.png'
 mangas_img = icons_prefix + 'mangas.png'
 
 last_query_file = 'last_query.txt'

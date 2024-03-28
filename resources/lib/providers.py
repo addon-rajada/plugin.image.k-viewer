@@ -143,7 +143,7 @@ def process_request(provider, page, req_obj, query = ''):
 		for item in rows:
 			# process image
 			try: image = eval(provider[req_obj]['image'])
-			except: image = ''
+			except: image = utils.icon_img
 
 			# process title
 			try: title = eval(provider[req_obj]['title'])
@@ -308,7 +308,7 @@ def do_list_pages(provider_name, url):
 		result.reverse()
 	return result
 
-def by_keyword(type, keyword, page):
+def by_keyword(type, keyword, page, query = ''):
 	results = []
 
 	providers = [p for p in all_providers if (p['type'] == type and keyword in p and is_enabled(p))]
@@ -316,7 +316,7 @@ def by_keyword(type, keyword, page):
 	workers = num_providers if (num_providers > 0 and num_providers <= 16) else 16
 
 	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(process_request, provider = x, page = page, req_obj = keyword) for x in providers]
+		futures = [executor.submit(process_request, provider = x, page = page, req_obj = keyword, query = query) for x in providers]
 		for f in as_completed(futures):
 			pool_result = f.result()
 			results.extend(pool_result)

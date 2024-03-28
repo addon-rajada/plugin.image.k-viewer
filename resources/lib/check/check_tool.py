@@ -182,7 +182,7 @@ def process_request(provider, page, req_obj, query = ''):
 		for item in rows:
 			# process image
 			try: image = eval(provider[req_obj]['image'])
-			except: image = ''
+			except: image = utils.icon_img
 
 			# process title
 			try: title = eval(provider[req_obj]['title'])

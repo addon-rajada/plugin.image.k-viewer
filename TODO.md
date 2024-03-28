@@ -2,7 +2,7 @@
 
 ### Features
 
-- comics by first letter
+- comics by genre
 - update check_tool
 - remove plot references as Picture ListItem doesn't have it ?
 - download chapter as zip ?
