@@ -195,6 +195,38 @@
 			"link": "['link']",
 			"mutate_link": "list(filter(lambda x: True if x['type'] == 'text/html' and x['rel']=='alternate' else False, {link}))[0]['href']"
 		},
+		"marvel": {
+			"request": {
+				"url": "https://www.galaxiadosquadrinhos.com.br/feeds/posts/default?alt=json&max-results=200&q=marvel&start-index={page}",
+				"type": "get",
+				"pagination": "true",
+				"page_multiplier": "int(page)*200 - 199"
+			},
+			"type": "json",
+			"exclude_title_with_words": "#|Ofertas - |Marvel Comics|POP Funko",
+			"rows": "['feed']['entry']",
+			"title": "['title']['$t']",
+			"image": "['media$thumbnail']['url']",
+			"plot": "",
+			"link": "['link']",
+			"mutate_link": "list(filter(lambda x: True if x['type'] == 'text/html' and x['rel']=='alternate' else False, {link}))[0]['href']"
+		},
+		"dc": {
+			"request": {
+				"url": "https://www.galaxiadosquadrinhos.com.br/feeds/posts/default?alt=json&max-results=200&q=dc&start-index={page}",
+				"type": "get",
+				"pagination": "true",
+				"page_multiplier": "int(page)*200 - 199"
+			},
+			"type": "json",
+			"exclude_title_with_words": "#|Ofertas - |Marvel Comics|POP Funko",
+			"rows": "['feed']['entry']",
+			"title": "['title']['$t']",
+			"image": "['media$thumbnail']['url']",
+			"plot": "",
+			"link": "['link']",
+			"mutate_link": "list(filter(lambda x: True if x['type'] == 'text/html' and x['rel']=='alternate' else False, {link}))[0]['href']"
+		},
 		"chapters": {
 			"request": {
 				"type": "get"
@@ -470,6 +502,23 @@
 			"link": "['id']",
 			"mutate_link": "'https://api.mangadex.org/chapter?manga=%s&limit=100&offset={page}&translatedLanguage[]=pt-br' % {link}"
 		},
+		"popular": {
+			"request": {
+				"url": "https://api.mangadex.org/manga?order[rating]=desc&limit=10&includes[]=cover_art&offset={page}&availableTranslatedLanguage[]=pt-br",
+				"type": "get",
+				"pagination": "true",
+				"page_multiplier": "10 * (int(page) - 1)"
+			},
+			"type": "json",
+			"rows": "['data']",
+			"title": "['attributes']['title']['en']",
+			"image": "['relationships']",
+			"image_auxiliar": "['id']",
+			"mutate_image": "list(filter(lambda x: True if x['type'] == 'cover_art' else False, {image}))[0]['attributes']['fileName']",
+			"mutate_image2": "'https://uploads.mangadex.org/covers/%s/%s' % ({image_auxiliar}, {image})",
+			"link": "['id']",
+			"mutate_link": "'https://api.mangadex.org/chapter?manga=%s&limit=100&offset={page}&translatedLanguage[]=pt-br' % {link}"
+		},
 		"chapters": {
 			"request": {
 				"type": "get",
@@ -510,6 +559,23 @@
 		"search": {
 			"request": {
 				"url": "https://api.mangadex.org/manga?title={query}&limit=10&includes[]=cover_art&offset={page}&availableTranslatedLanguage[]=en",
+				"type": "get",
+				"pagination": "true",
+				"page_multiplier": "10 * (int(page) - 1)"
+			},
+			"type": "json",
+			"rows": "['data']",
+			"title": "['attributes']['title']['en']",
+			"image": "['relationships']",
+			"image_auxiliar": "['id']",
+			"mutate_image": "list(filter(lambda x: True if x['type'] == 'cover_art' else False, {image}))[0]['attributes']['fileName']",
+			"mutate_image2": "'https://uploads.mangadex.org/covers/%s/%s' % ({image_auxiliar}, {image})",
+			"link": "['id']",
+			"mutate_link": "'https://api.mangadex.org/chapter?manga=%s&limit=100&offset={page}&translatedLanguage[]=en' % {link}"
+		},
+		"popular": {
+			"request": {
+				"url": "https://api.mangadex.org/manga?order[rating]=desc&limit=10&includes[]=cover_art&offset={page}&availableTranslatedLanguage[]=en",
 				"type": "get",
 				"pagination": "true",
 				"page_multiplier": "10 * (int(page) - 1)"

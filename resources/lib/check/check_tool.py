@@ -9,6 +9,17 @@ from ehp_mod import *
 if sys.version_info[0] == 2: from urllib import quote, unquote
 else: from urllib.parse import quote, unquote
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 class utils:
 
 	icon_img = 'icon.png'
@@ -24,6 +35,35 @@ class utils:
 	    value += '=' * (len(value) % 4)
 	    return str(base64.b64decode(value), 'utf-8') # urlsafe_
 
+	@staticmethod
+	def get_setting(key, converter=str):
+		if key == 'timeout': return 4
+		elif key == 'custom_gui': return True
+		elif key == 'provider_prefix': return True
+		elif key == 'lang_prefix': return True
+		return None
+
+	@staticmethod
+	def do_request(type, url, timeout = 4, headers = {}, depth = 0):
+		print(type, 'request to', url)
+		try:
+			if type == 'get':
+				resp = requests.get(url, timeout=timeout, headers=headers)
+			elif type == 'post':
+				resp = requests.post(url, timeout=timeout, headers=headers)
+			return resp
+		except requests.exceptions.Timeout:
+			print('timeout error. depth:', depth)
+			if depth == 1: return None # 1 retries
+			else:
+				depth += 1
+				return utils.do_request(type, url, 2*timeout, headers, depth)
+		except requests.exceptions.ConnectionError:
+			print('connection error. depth:', depth)
+			if depth == 3: return None # 3 retries
+			else:
+				depth += 1
+				return utils.do_request(type, url, timeout, headers, depth)
 
 def _load_file(path):
     if not os.path.exists(path):
@@ -60,27 +100,6 @@ def parser_type(parser_obj):
 	else:
 		return 'html'
 
-def do_request(type, url, timeout = 4, headers = {}, depth = 0):
-	print(type, 'request to', url)
-	try:
-		if type == 'get':
-			resp = requests.get(url, timeout=timeout, headers=headers)
-		elif type == 'post':
-			resp = requests.post(url, timeout=timeout, headers=headers)
-		return resp
-	except requests.exceptions.Timeout:
-		print('timeout error. depth:', depth)
-		if depth == 1: return None # 1 retries
-		else:
-			depth += 1
-			return do_request(type, url, 2*timeout, headers, depth)
-	except requests.exceptions.ConnectionError:
-		print('connection error. depth:', depth)
-		if depth == 3: return None # 3 retries
-		else:
-			depth += 1
-			return do_request(type, url, timeout, headers, depth)
-
 def try_eval(item, object, key, default_return = 'nothing to eval', pre_function = None):
 	if (key in object and object[key] != ""):
 		if pre_function != None:
@@ -113,7 +132,9 @@ def json_process(resp, provider, req_obj):
 				continue
 		if 'mutate_title' in provider[req_obj]:
 			title = eval(provider[req_obj]['mutate_title'].replace('{title}', repr(title)))
-		title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
+		provider_prefix = ('[%s]' % provider['name']) if utils.get_setting('provider_prefix', bool) else ''
+		lang_prefix = ('[%s]' % provider['lang']) if utils.get_setting('lang_prefix', bool) else ''
+		title = '[COLOR %s]%s%s[/COLOR] %s'%(provider['color'],provider_prefix,lang_prefix,title)
 		# process link
 		try: link = eval("%s%s" % ('item', provider[req_obj]['link']))
 		except: link = ''
@@ -145,7 +166,7 @@ def process_request(provider, page, req_obj, query = ''):
 	url = url.replace('{page}', str(page))
 
 	# request
-	resp = do_request(provider[req_obj]['request']['type'], url)
+	resp = utils.do_request(provider[req_obj]['request']['type'], url)
 	if resp == None: return result
 
 	# json parser
@@ -168,7 +189,9 @@ def process_request(provider, page, req_obj, query = ''):
 			except: title = ''
 			if 'mutate_title' in provider[req_obj]:
 				title = eval(provider[req_obj]['mutate_title'].replace('{title}', title))
-			title = '[COLOR %s][%s][%s][/COLOR] %s'%(provider['color'],provider['name'],provider['lang'],title)
+			provider_prefix = ('[%s]' % provider['name']) if utils.get_setting('provider_prefix', bool) else ''
+			lang_prefix = ('[%s]' % provider['lang']) if utils.get_setting('lang_prefix', bool) else ''
+			title = '[COLOR %s]%s%s[/COLOR] %s'%(provider['color'],provider_prefix,lang_prefix,title)
 
 			# process link
 			try: link = eval(provider[req_obj]['link'])
@@ -197,7 +220,7 @@ def do_list_chapters(provider, url, page):
 		page = eval(p['chapters']['request']['page_multiplier'])
 	url = url.replace('{page}', str(page))
 	# request
-	resp = do_request(p['chapters']['request']['type'], url)
+	resp = utils.do_request(p['chapters']['request']['type'], url)
 	if resp == None: return result
 
 	# json parser
@@ -247,7 +270,7 @@ def fix_blogspot_url(index, url):
 	s = url.split('=')
 	if len(s) > 1:
 		new_url = s[0]
-		xml = do_request('get', new_url + '=g')
+		xml = utils.do_request('get', new_url + '=g')
 		match = re.findall(r'(http.*googleusercontent.com.*)"\stiler_version_number', xml.text)
 		try: new_url = match[0].split('/')
 		except: return index, url
@@ -255,15 +278,20 @@ def fix_blogspot_url(index, url):
 		return index, '/'.join(new_url)
 	return index, url
 
-def do_list_pages(provider, url):
+def get_headers(provider_name, obj):
+	p = provider_by_name(provider_name)
+	custom_headers = {}
+	if 'headers' in p[obj]['request']:
+		custom_headers = p[obj]['request']['headers']
+	return custom_headers
+
+def do_list_pages(provider_name, url):
 	result = []
 	url = utils.base64_decode_url(url)
-	p = provider_by_name(provider)
+	p = provider_by_name(provider_name)
 	# request
-	custom_headers = {}
-	if 'headers' in p['pages']['request']:
-		custom_headers = p['pages']['request']['headers']
-	resp = do_request(p['pages']['request']['type'], url, headers = custom_headers)
+	custom_headers = get_headers(provider_name, 'pages')
+	resp = utils.do_request(p['pages']['request']['type'], url, headers = custom_headers)
 	if resp == None: return result
 
 	# json parser
@@ -305,14 +333,16 @@ def do_list_pages(provider, url):
 				continue
 
 	# blogspot url fix
-	num_pages = len(result)
-	workers = num_pages if (num_pages > 0 and num_pages <= 16) else 16
-	with ThreadPoolExecutor(max_workers = workers) as executor:
-		futures = [executor.submit(fix_blogspot_url, index = result.index(x), url = utils.base64_decode_url(x['link'])) for x in result]
-		for f in as_completed(futures):
-			index, new_url = f.result()
-			#print('blogspot fix - before (%s) after (%s)' % (utils.base64_decode_url(result[index]['link']), new_url))
-			result[index]['link'] = utils.base64_encode_url(new_url)
+	use_custom_gui = utils.get_setting('custom_gui', bool)
+	if not use_custom_gui:
+		num_pages = len(result)
+		workers = num_pages if (num_pages > 0 and num_pages <= 16) else 16
+		with ThreadPoolExecutor(max_workers = workers) as executor:
+			futures = [executor.submit(fix_blogspot_url, index = result.index(x), url = utils.base64_decode_url(x['link'])) for x in result]
+			for f in as_completed(futures):
+				index, new_url = f.result()
+				#print('blogspot fix - before (%s) after (%s)' % (utils.base64_decode_url(result[index]['link']), new_url))
+				result[index]['link'] = utils.base64_encode_url(new_url)
 	# reverse
 	if 'reverse' in p['pages'] and p['pages']['reverse'] == 'true':
 		result.reverse()
@@ -346,13 +376,14 @@ if __name__ == '__main__':
 	results = process_request(provider, result_page, keyword, query)
 	print('#'*50)
 	for r in results:
-		print(r['title'])
+		print(f"{bcolors.WARNING}{r['title']}{bcolors.ENDC}")
 		print(r['image'])
 		print(utils.base64_decode_url(r['link']))
 		print('-'*50)
 
 	# chapters
 	check_chap = input('Want to check chapters from first result? [Y][n] ')
+	chapters = []
 	if check_chap == 'Y':
 		chapters = do_list_chapters(provider_name, results[0]['link'], chapter_page)
 		print('#'*50)
@@ -365,6 +396,9 @@ if __name__ == '__main__':
 			print('-'*50)
 
 	# pages
+	if len(chapters) < 1:
+		print('empty chapters array. exiting')
+		exit()
 	check_pages = input('Want to check pages from first chapter? [Y][n] ')
 	if check_pages == 'Y':
 		pages = do_list_pages(provider_name, chapters[0]['link'])
